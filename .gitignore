@@ -1,0 +1,22 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Local environment files
+.env
+
+# Zip releases
+*.zip
+
+# WordPress generated files
+debug.log
