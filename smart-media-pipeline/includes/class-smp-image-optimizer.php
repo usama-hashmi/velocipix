@@ -130,7 +130,7 @@ class SMP_Image_Optimizer {
 
 			} catch ( Exception $e ) {
 
-				error_log( 'SMP WebP Error: ' . $e->getMessage() );
+				return;
 			}
 
 		} else {
@@ -212,7 +212,7 @@ class SMP_Image_Optimizer {
 
 			} catch ( Exception $e ) {
 
-				error_log( 'SMP AVIF Error: ' . $e->getMessage() );
+				return;
 			}
 
 		} else {

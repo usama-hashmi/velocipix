@@ -40,7 +40,15 @@ class SMP_Bulk_Optimizer {
 
 		set_transient( 'smp_bulk_running', 1, 30 );
 
-		$page = max( 1, (int) ( $_POST['page'] ?? 1 ) );
+		$page = max(
+			1,
+			absint (
+				wp_unslash(
+					$_POST['page']
+					?? 1
+				)
+			)
+		);
 
 		$per_page = (int) apply_filters( 'smp_bulk_batch_size', self::BATCH_SIZE );
 
@@ -98,15 +106,6 @@ class SMP_Bulk_Optimizer {
 				);
 
 				if ( is_wp_error( $result ) ) {
-					// Log the error but continue processing remaining images.
-					error_log(
-						sprintf(
-							'SMP Bulk Optimizer: failed to process attachment %d — %s',
-							$attachment_id,
-							$result->get_error_message()
-						)
-					);
-
 					$processed[] = $attachment_id;
 					continue;
 				}

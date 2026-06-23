@@ -150,8 +150,10 @@ class SMP_Plugin {
             ),
 
             'page_url' => esc_url_raw(
-                $_POST['page_url']
-                ?? ''
+                wp_unslash(
+                    $_POST['page_url']
+                    ?? ''
+                )
             ),
         ];
 
