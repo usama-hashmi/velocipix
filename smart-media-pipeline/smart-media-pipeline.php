@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Smart Media Pipeline
+ * Plugin Name: MediaLens Pipeline
  * Description: Optimize WordPress image delivery with WebP, AVIF, frontend rendering analysis, and Elementor image intelligence.
  * Version: 1.0.0
  * Author: Usama Hashmi

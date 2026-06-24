@@ -1,4 +1,4 @@
-# Smart Media Pipeline - Pre Launch Checklist
+# MediaLens Pipeline - Pre Launch Checklist
 
 ## Product
 

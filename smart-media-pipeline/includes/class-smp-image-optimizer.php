@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class SMP_Image_Optimizer {
 
+	private $output_buffer_started = false;
+
     public function __construct() {
         add_filter(
             'wp_generate_attachment_metadata',
@@ -16,6 +18,10 @@ class SMP_Image_Optimizer {
 		add_action(
 			'template_redirect',
 			[ $this, 'start_output_buffer' ]
+		);
+		add_action(
+			'shutdown',
+			[ $this, 'end_output_buffer' ]
 		);
 		add_action(
 			'delete_attachment',
@@ -473,7 +479,24 @@ class SMP_Image_Optimizer {
 			return;
 		}
 
-		ob_start( [ $this, 'replace_image_urls_with_webp' ] );
+		$this->output_buffer_started = true;
+
+		ob_start(
+			[ $this, 'replace_image_urls_with_webp' ]
+		);
+	}
+
+	public function end_output_buffer() {
+
+		if (
+			$this->output_buffer_started
+			&& ob_get_level() > 0
+		) {
+
+			ob_end_flush();
+
+			$this->output_buffer_started = false;
+		}
 	}
 
 	public function replace_image_urls_with_webp( $html ) {

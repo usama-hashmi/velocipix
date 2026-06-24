@@ -25,8 +25,8 @@ class SMP_Admin {
 
     public function register_menu() {
         add_menu_page(
-            __( 'Smart Media Pipeline', 'smart-media-pipeline' ),
-            __( 'Smart Media Pipeline', 'smart-media-pipeline' ),
+            __( 'MediaLens Pipeline', 'smart-media-pipeline' ),
+            __( 'MediaLens Pipeline', 'smart-media-pipeline' ),
             'manage_options',
             'smart-media-pipeline',
             [ $this, 'render_settings_page' ],
@@ -218,7 +218,7 @@ class SMP_Admin {
             style="
                 max-width:none;
             ">
-            <h1><?php esc_html_e( 'Smart Media Pipeline', 'smart-media-pipeline' ); ?></h1>
+            <h1><?php esc_html_e( 'MediaLens Pipeline', 'smart-media-pipeline' ); ?></h1>
 
             <form method="post" action="options.php">
                 <?php

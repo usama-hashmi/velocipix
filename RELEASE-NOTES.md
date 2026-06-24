@@ -1,4 +1,4 @@
-# Smart Media Pipeline Roadmap
+# MediaLens Pipeline Roadmap
 
 ## v1.0.0 (Current Release)
 

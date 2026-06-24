@@ -1,4 +1,4 @@
-# Smart Media Pipeline - Free vs Pro Architecture
+# MediaLens Pipeline - Free vs Pro Architecture
 
 This document acts as a permanent checkpoint for future plugin development.
 

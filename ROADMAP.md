@@ -1,8 +1,8 @@
-# Smart Media Pipeline Roadmap
+# MediaLens Pipeline Roadmap
 
 ## Vision
 
-Build Smart Media Pipeline into a modern WordPress image optimization platform focused on frontend image intelligence rather than traditional image compression.
+Build MediaLens Pipeline into a modern WordPress image optimization platform focused on frontend image intelligence rather than traditional image compression.
 
 The long-term goal is to help users understand how images are actually delivered on the frontend and provide actionable optimization recommendations.
 
@@ -90,4 +90,4 @@ The long-term goal is to help users understand how images are actually delivered
 
 # Long-Term Vision
 
-Smart Media Pipeline should evolve from an image optimization plugin into a Frontend Image Intelligence platform for WordPress.
+MediaLens Pipeline should evolve from an image optimization plugin into a Frontend Image Intelligence platform for WordPress.
