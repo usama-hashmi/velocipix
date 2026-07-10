@@ -1,4 +1,4 @@
-# MediaLens Pipeline
+# VelociPix
 
 Professional WordPress plugin boilerplate with:
 - OOP architecture
@@ -12,4 +12,4 @@ Professional WordPress plugin boilerplate with:
 
 1. Upload the plugin folder to `/wp-content/plugins/`
 2. Activate the plugin
-3. Open "MediaLens Pipeline" from the WordPress admin menu
+3. Open "VelociPix" from the WordPress admin menu

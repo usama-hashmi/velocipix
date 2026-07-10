@@ -1,8 +1,8 @@
-=== MediaLens Pipeline ===
+=== VelociPix ===
 Contributors: usamahashmi
 Tags: webp, avif, image optimization, elementor, core web vitals
 Requires at least: 6.0
-Tested up to: 7.0
+Tested up to: 7.0.1
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -10,21 +10,21 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Optimize WordPress image delivery with WebP, AVIF, frontend rendering analysis, and Elementor image intelligence.
 
 == Description ==
-MediaLens Pipeline is a modern image optimization plugin for WordPress that goes beyond simple image conversion.
-In addition to generating WebP and AVIF images, MediaLens Pipeline helps you understand how images are actually delivered on the frontend by combining modern image formats, frontend rendering analysis, and advanced Elementor image intelligence.
+VelociPix is a modern image optimization plugin for WordPress that goes beyond simple image conversion.
+In addition to generating WebP and AVIF images, VelociPix helps you understand how images are actually delivered on the frontend by combining modern image formats, frontend rendering analysis, and advanced Elementor image intelligence.
 This allows you to identify oversized image delivery, wasted bandwidth, and optimization opportunities that traditional compression-focused plugins often miss.
 
-== Why MediaLens Pipeline? ==
+== Why VelociPix? ==
 Many image optimization plugins primarily focus on file compression.
-MediaLens Pipeline expands on this by helping users understand how images are actually delivered on the frontend.
-MediaLens Pipeline focuses on:
+VelociPix expands on this by helping users understand how images are actually delivered on the frontend.
+VelociPix focuses on:
 •	Frontend image delivery efficiency
 •	Oversized image detection
 •	Elementor-specific image analysis
 •	Frontend rendering diagnostics
 •	Modern image format delivery
 •	Actionable optimization insights
-Instead of only reducing image file size, MediaLens Pipeline helps you understand how images impact real-world frontend performance.
+Instead of only reducing image file size, VelociPix helps you understand how images impact real-world frontend performance.
 
 == Key Features ==
 
@@ -56,7 +56,7 @@ Features include:
 •	Quick Elementor editing access
 
 = Frontend Rendering Analysis =
-MediaLens Pipeline analyzes how images are actually delivered in the browser.
+VelociPix analyzes how images are actually delivered in the browser.
 The plugin can detect cases where browsers download significantly larger images than the rendered display size.
 This helps identify:
 •	Responsive image inefficiencies
@@ -83,7 +83,7 @@ Includes:
 == Installation ==
 1.	Upload the plugin to the /wp-content/plugins/ directory or install through the WordPress Plugins screen.
 2.	Activate the plugin through the Plugins screen in WordPress.
-3.	Open MediaLens Pipeline from the WordPress admin menu.
+3.	Open VelociPix from the WordPress admin menu.
 4.	Configure WebP, AVIF, frontend delivery, and intelligence settings.
 5.	Run Bulk Optimization to optimize existing media.
 6.	Review Elementor Intelligence diagnostics and recommendations.
@@ -91,13 +91,13 @@ Includes:
 == Frequently Asked Questions ==
 
 = Does this plugin support WebP? =
-Yes. MediaLens Pipeline automatically generates WebP versions of supported images.
+Yes. VelociPix automatically generates WebP versions of supported images.
 
 = Does this plugin support AVIF? =
-Yes. MediaLens Pipeline supports AVIF generation when supported by the server environment.
+Yes. VelociPix supports AVIF generation when supported by the server environment.
 
 = Does this plugin work with Elementor? =
-Yes. MediaLens Pipeline includes advanced Elementor Image Intelligence and frontend rendering analysis.
+Yes. VelociPix includes advanced Elementor Image Intelligence and frontend rendering analysis.
 
 = What is Elementor Image Intelligence? =
 Elementor Image Intelligence analyzes Elementor pages to identify oversized image delivery, frontend rendering inefficiencies, and optimization opportunities.
@@ -109,7 +109,7 @@ Frontend Rendering Analysis compares the image size downloaded by the browser ag
 No. Original uploads are preserved. Optimized formats are generated separately.
 
 = What happens when an image is deleted? =
-MediaLens Pipeline automatically removes generated WebP and AVIF files associated with the deleted attachment.
+VelociPix automatically removes generated WebP and AVIF files associated with the deleted attachment.
 
 = Can I bulk optimize existing images? =
 Yes. The plugin includes bulk optimization support for existing media library images.
@@ -139,4 +139,4 @@ Yes. The plugin includes bulk optimization support for existing media library im
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial public release of MediaLens Pipeline.
+Initial public release of VelociPix.
