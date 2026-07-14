@@ -1,4 +1,4 @@
-# MediaLens Pipeline - Free vs Pro Architecture
+# Velocipix - Free vs Pro Architecture
 
 This document acts as a permanent checkpoint for future plugin development.
 

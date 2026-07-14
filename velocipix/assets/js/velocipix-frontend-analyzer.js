@@ -44,33 +44,25 @@ window.addEventListener(
 
                 || '';
 
-			if ( smpFrontend.debug ) {
+			if ( velocipixFrontend.debug && ratio >= 1.5 ) {
 
-                console.log(
-                    '[SMP Oversized Image]',
+                const severity = ratio >= 4 ? 'High' : 'Medium';
 
+                console.warn(
+                    `[VelociPix Oversized Image - ${severity}]`,
                     {
-                        id:
-                            imageId,
-
-                        src:
-                            img.src,
-
-                        renderedWidth:
-                            renderedWidth,
-
-                        naturalWidth:
-                            naturalWidth,
-
-                        ratio:
-                            ratio.toFixed( 2 ),
+                        id: imageId,
+                        src: img.src,
+                        renderedWidth,
+                        naturalWidth,
+                        ratio: ratio.toFixed( 2 ),
                     }
-			    );
+                );
             }
 
             fetch(
 
-                smpFrontend.ajaxUrl,
+                velocipixFrontend.ajaxUrl,
 
                 {
                     method: 'POST',
@@ -85,10 +77,10 @@ window.addEventListener(
                         new URLSearchParams({
 
                             action:
-                                'smp_frontend_analysis',
+                                'velocipix_frontend_analysis',
 
                             nonce:
-                                smpFrontend.nonce,
+                                velocipixFrontend.nonce,
 
                             attachment_id:
                                 imageId,
@@ -114,10 +106,10 @@ window.addEventListener(
 
                 data => {
 
-                    if ( smpFrontend.debug ) {
+                    if ( velocipixFrontend.debug ) {
 
                         console.log(
-                            '[SMP AJAX]',
+                            '[VelociPix AJAX]',
                             data
                         );
                     }

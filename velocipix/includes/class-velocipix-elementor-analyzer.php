@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class SMP_Elementor_Analyzer {
+class VelociPix_Elementor_Analyzer {
 
 	public function get_elementor_image_ids( $post_id ) {
 
@@ -207,7 +207,7 @@ class SMP_Elementor_Analyzer {
 
                 $frontend_analysis =
                     get_transient(
-                        'smp_frontend_analysis'
+                        'velocipix_frontend_analysis'
                     );
 
                 $frontend_data =
@@ -453,7 +453,7 @@ class SMP_Elementor_Analyzer {
 
     // public function debug_test( $post_id ) {
 
-    //     $analyzer = new SMP_Elementor_Analyzer();
+    //     $analyzer = new VelociPix_Elementor_Analyzer();
 
     //     echo '<pre>';
 

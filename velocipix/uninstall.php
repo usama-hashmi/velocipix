@@ -11,7 +11,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 */
 
 delete_option(
-    'smp_settings'
+    'velocipix_settings'
 );
 
 /*
@@ -21,9 +21,9 @@ delete_option(
 */
 
 delete_transient(
-    'smp_frontend_analysis'
+    'velocipix_frontend_analysis'
 );
 
 delete_transient(
-    'smp_bulk_running'
+    'velocipix_bulk_running'
 );

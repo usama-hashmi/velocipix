@@ -2,7 +2,7 @@
 Contributors: usamahashmi
 Tags: webp, avif, image optimization, elementor, core web vitals
 Requires at least: 6.0
-Tested up to: 7.0.1
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later

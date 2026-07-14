@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class SMP_Media_Library {
+class VelociPix_Media_Library {
 
     public function __construct() {
 
@@ -23,18 +23,18 @@ class SMP_Media_Library {
 
     public function add_columns( $columns ) {
 
-        $columns['smp_webp_stats'] = 'Media Optimization';
+        $columns['velocipix_webp_stats'] = 'Media Optimization';
 
         return $columns;
     }
 
     public function render_columns( $column_name, $attachment_id ) {
 
-        if ( 'smp_webp_stats' !== $column_name ) {
+        if ( 'velocipix_webp_stats' !== $column_name ) {
             return;
         }
 
-        $image_optimizer = new SMP_Image_Optimizer();
+        $image_optimizer = new VelociPix_Image_Optimizer();
 
         $data = $image_optimizer->get_image_optimization_data(
             $attachment_id
@@ -152,7 +152,7 @@ class SMP_Media_Library {
 
         $frontend_analysis =
             get_transient(
-                'smp_frontend_analysis'
+                'velocipix_frontend_analysis'
             );
 
         $frontend_data =

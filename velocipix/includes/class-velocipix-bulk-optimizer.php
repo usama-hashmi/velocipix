@@ -4,14 +4,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class SMP_Bulk_Optimizer {
+class VelociPix_Bulk_Optimizer {
 
 	const BATCH_SIZE = 3;
 
 	public function __construct() {
 
 		add_action(
-			'wp_ajax_smp_bulk_optimize',
+			'wp_ajax_velocipix_bulk_optimize',
 			[ $this, 'process_bulk_optimization' ]
 		);
 	}
@@ -19,7 +19,7 @@ class SMP_Bulk_Optimizer {
 	public function process_bulk_optimization() {
 
 		check_ajax_referer(
-			'smp_bulk_optimizer',
+			'velocipix_bulk_optimizer',
 			'nonce'
 		);
 
@@ -31,14 +31,14 @@ class SMP_Bulk_Optimizer {
 		}
 
 		// Prevent concurrent runs via a short-lived lock.
-		if ( get_transient( 'smp_bulk_running' ) ) {
+		if ( get_transient( 'velocipix_bulk_running' ) ) {
 
 			wp_send_json_error(
 				'A bulk optimization is already in progress. Please wait and try again.'
 			);
 		}
 
-		set_transient( 'smp_bulk_running', 1, 30 );
+		set_transient( 'velocipix_bulk_running', 1, 30 );
 
 		$page = max(
 			1,
@@ -50,7 +50,7 @@ class SMP_Bulk_Optimizer {
 			)
 		);
 
-		$per_page = (int) apply_filters( 'smp_bulk_batch_size', self::BATCH_SIZE );
+		$per_page = (int) apply_filters( 'velocipix_bulk_batch_size', self::BATCH_SIZE );
 
 		$query = new WP_Query(
 			[
@@ -71,7 +71,7 @@ class SMP_Bulk_Optimizer {
 
 		if ( ! empty( $query->posts ) ) {
 
-			$image_optimizer = new SMP_Image_Optimizer();
+			$image_optimizer = new VelociPix_Image_Optimizer();
 
 			foreach ( $query->posts as $attachment_id ) {
 
@@ -160,7 +160,7 @@ class SMP_Bulk_Optimizer {
 			}
 		}
 
-		delete_transient( 'smp_bulk_running' );
+		delete_transient( 'velocipix_bulk_running' );
 
 		wp_send_json_success(
 			[

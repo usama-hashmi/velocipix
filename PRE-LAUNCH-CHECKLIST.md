@@ -1,4 +1,4 @@
-# MediaLens Pipeline - Pre Launch Checklist
+# Velocipix - Pre Launch Checklist
 
 ## Product
 

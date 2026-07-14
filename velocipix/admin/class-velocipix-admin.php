@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class SMP_Admin {
+class VelociPix_Admin {
 
     public function __construct() {
 
@@ -21,14 +21,14 @@ class SMP_Admin {
 
     }
 
-    private $option_name = 'smp_settings';
+    private $option_name = 'velocipix_settings';
 
     public function register_menu() {
         add_menu_page(
-            __( 'VelociPix', 'smart-media-pipeline' ),
-            __( 'VelociPix', 'smart-media-pipeline' ),
+            __( 'VelociPix', 'velocipix' ),
+            __( 'VelociPix', 'velocipix' ),
             'manage_options',
-            'smart-media-pipeline',
+            'velocipix',
             [ $this, 'render_settings_page' ],
             'dashicons-format-image',
             65
@@ -37,94 +37,94 @@ class SMP_Admin {
 
     public function register_settings() {
         register_setting(
-            'smp_settings_group',
+            'velocipix_settings_group',
             $this->option_name,
             [ $this, 'sanitize_settings' ]
         );
 
         add_settings_section(
 
-            'smp_image_formats_section',
+            'velocipix_image_formats_section',
 
-            __( 'Image Formats', 'smart-media-pipeline' ),
+            __( 'Image Formats', 'velocipix' ),
 
             '__return_false',
 
-            'smart-media-pipeline'
+            'velocipix'
         );
 
         add_settings_section(
 
-            'smp_frontend_section',
+            'velocipix_frontend_section',
 
-            __( 'Frontend Delivery', 'smart-media-pipeline' ),
+            __( 'Frontend Delivery', 'velocipix' ),
 
             '__return_false',
 
-            'smart-media-pipeline'
+            'velocipix'
         );
 
         add_settings_section(
 
-            'smp_intelligence_section',
+            'velocipix_intelligence_section',
 
-            __( 'Intelligence Features', 'smart-media-pipeline' ),
+            __( 'Intelligence Features', 'velocipix' ),
 
             '__return_false',
 
-            'smart-media-pipeline'
+            'velocipix'
         );
 
         add_settings_field(
             'enable_webp',
-            __( 'Enable WebP', 'smart-media-pipeline' ),
+            __( 'Enable WebP', 'velocipix' ),
             [ $this, 'render_enable_webp_field' ],
-            'smart-media-pipeline',
-            'smp_image_formats_section'
+            'velocipix',
+            'velocipix_image_formats_section'
         );
 
         add_settings_field(
             'enable_avif',
-            __( 'Enable AVIF', 'smart-media-pipeline' ),
+            __( 'Enable AVIF', 'velocipix' ),
             [ $this, 'render_enable_avif_field' ],
-            'smart-media-pipeline',
-            'smp_image_formats_section'
+            'velocipix',
+            'velocipix_image_formats_section'
         );
 
         add_settings_field(
             'webp_quality',
-            __( 'WebP Quality', 'smart-media-pipeline' ),
+            __( 'WebP Quality', 'velocipix' ),
             [ $this, 'render_webp_quality_field' ],
-            'smart-media-pipeline',
-            'smp_image_formats_section'
+            'velocipix',
+            'velocipix_image_formats_section'
         );
 
         add_settings_field(
             'avif_quality',
-            __( 'AVIF Quality', 'smart-media-pipeline' ),
+            __( 'AVIF Quality', 'velocipix' ),
             [ $this, 'render_avif_quality_field' ],
-            'smart-media-pipeline',
-            'smp_image_formats_section'
+            'velocipix',
+            'velocipix_image_formats_section'
         );
 
         add_settings_field(
             'enable_frontend_replacement',
-            __( 'Enable Frontend Replacement', 'smart-media-pipeline' ),
+            __( 'Enable Frontend Replacement', 'velocipix' ),
             [ $this, 'render_frontend_replacement_field' ],
-            'smart-media-pipeline',
-            'smp_frontend_section'
+            'velocipix',
+            'velocipix_frontend_section'
         );
 
         add_settings_field(
             'enable_debug_mode',
 
-            __( 'Enable Debug Mode', 'smart-media-pipeline' ),
+            __( 'Enable Debug Mode', 'velocipix' ),
 
             [ $this, 'render_checkbox_field' ],
 
-            'smart-media-pipeline',
+            'velocipix',
 
-            'smp_intelligence_section',
+            'velocipix_intelligence_section',
 
             [
                 'label_for' =>
@@ -182,31 +182,31 @@ class SMP_Admin {
     }
 
     public function enqueue_assets( $hook ) {
-        if ( 'toplevel_page_smart-media-pipeline' !== $hook ) {
+        if ( 'toplevel_page_velocipix' !== $hook ) {
             return;
         }
 
         wp_enqueue_style(
-            'smp-admin',
-            SMP_PLUGIN_URL . 'assets/css/admin.css',
+            'velocipix-admin',
+            VELOCIPIX_PLUGIN_URL . 'assets/css/admin.css',
             [],
-            SMP_VERSION
+            VELOCIPIX_VERSION
         );
 
         wp_enqueue_script(
-            'smp-admin',
-            SMP_PLUGIN_URL . 'assets/js/admin.js',
+            'velocipix-admin',
+            VELOCIPIX_PLUGIN_URL . 'assets/js/admin.js',
             [ 'jquery' ],
-            SMP_VERSION,
+            VELOCIPIX_VERSION,
             true
         );
 
         wp_localize_script(
-            'smp-admin',
-            'smp_bulk_optimizer',
+            'velocipix-admin',
+            'velocipix_bulk_optimizer',
             [
                 'nonce' => wp_create_nonce(
-                    'smp_bulk_optimizer'
+                    'velocipix_bulk_optimizer'
                 ),
             ]
         );
@@ -218,11 +218,17 @@ class SMP_Admin {
             style="
                 max-width:none;
             ">
-            <h1><?php esc_html_e( 'VelociPix', 'smart-media-pipeline' ); ?></h1>
+            <h1><?php esc_html_e( 'VelociPix', 'velocipix' ); ?></h1>
+            <p class="description">
+                <?php esc_html_e(
+                    'Image optimization, modern image delivery, and Elementor image intelligence.',
+                    'velocipix'
+                ); ?>
+            </p>
 
             <form method="post" action="options.php">
                 <?php
-                settings_fields( 'smp_settings_group' );
+                settings_fields( 'velocipix_settings_group' );
 
                 echo '<div style="
 
@@ -280,15 +286,22 @@ class SMP_Admin {
 
                             echo '<h2>';
 
-                            echo 'Image Formats';
+                            esc_html_e( 'Image Formats', 'velocipix' );
 
                             echo '</h2>';
+
+                            echo '<p class="description">';
+                                esc_html_e(
+                                    'Automatically generate modern image formats for newly uploaded media. Existing images can be optimized using Bulk Optimization.',
+                                    'velocipix'
+                                );
+                            echo '</p>';
 
                             echo '<table class="form-table">';
 
                             do_settings_fields(
-                                'smart-media-pipeline',
-                                'smp_image_formats_section'
+                                'velocipix',
+                                'velocipix_image_formats_section'
                             );
 
                             echo '</table>';
@@ -299,32 +312,46 @@ class SMP_Admin {
 
                             echo '<h2>';
 
-                            echo 'Frontend Delivery';
+                            esc_html_e( 'Frontend Delivery', 'velocipix' );
 
                             echo '</h2>';
+
+                            echo '<p class="description">';
+                                esc_html_e(
+                                    'Serve WebP or AVIF images automatically when available. Refresh the frontend after changing this setting.',
+                                    'velocipix'
+                                );
+                            echo '</p>';
 
                             echo '<table class="form-table">';
 
                             do_settings_fields(
-                                'smart-media-pipeline',
-                                'smp_frontend_section'
+                                'velocipix',
+                                'velocipix_frontend_section'
                             );
 
                             echo '</table>';
 
                             echo '<h2 style="
-                                margin-top:20px;
+                                margin-top:40px;
                             ">';
 
-                            echo 'Intelligence Features';
+                            esc_html_e( 'Intelligence Features', 'velocipix' );
 
                             echo '</h2>';
+
+                            echo '<p class="description">';
+                                esc_html_e(
+                                    'Enable browser console logs while testing image delivery and rendering analysis.',
+                                    'velocipix'
+                                );
+                            echo '</p>';
 
                             echo '<table class="form-table">';
 
                             do_settings_fields(
-                                'smart-media-pipeline',
-                                'smp_intelligence_section'
+                                'velocipix',
+                                'velocipix_intelligence_section'
                             );
 
                             echo '</table>';
@@ -370,14 +397,14 @@ class SMP_Admin {
                         <h2>
                             <?php esc_html_e(
                                 'Bulk Optimization',
-                                'smart-media-pipeline'
+                                'velocipix'
                             ); ?>
                         </h2>
 
-                        <p>
+                        <p class="description">
                             <?php esc_html_e(
-                                'Optimize existing media library images.',
-                                'smart-media-pipeline'
+                                'Optimize images already stored in your Media Library. Enable WebP and/or AVIF before starting optimization.',
+                                'velocipix'
                             ); ?>
                         </p>
                         <?php
@@ -396,16 +423,16 @@ class SMP_Admin {
                         <button
                             type="button"
                             class="button button-primary"
-                            id="smp-start-bulk-optimization"
+                            id="velocipix-start-bulk-optimization"
                         >
                             <?php esc_html_e(
                                 'Optimize Existing Media',
-                                'smart-media-pipeline'
+                                'velocipix'
                             ); ?>
                         </button>
 
                         <div
-                            id="smp-progress-bar-wrapper"
+                            id="velocipix-progress-bar-wrapper"
                             style="
                                 display:none;
                                 width:100%;
@@ -419,7 +446,7 @@ class SMP_Admin {
                         >
 
                             <div
-                                id="smp-progress-bar"
+                                id="velocipix-progress-bar"
                                 style="
                                     width:0%;
                                     height:100%;
@@ -431,7 +458,7 @@ class SMP_Admin {
                         </div>
 
                         <div
-                            id="smp-bulk-optimization-status"
+                            id="velocipix-bulk-optimization-status"
                             style="margin-top:20px;"
                         ></div>
 
@@ -449,7 +476,7 @@ class SMP_Admin {
                     font-size:1.4em;
                 ">';
 
-                echo 'Elementor Intelligence';
+                esc_html_e( 'Elementor Intelligence', 'velocipix' );
 
                 echo '</h2>';
 
@@ -461,7 +488,7 @@ class SMP_Admin {
 
                 echo '<h2>';
 
-                echo 'System Status';
+                esc_html_e( 'System Status', 'velocipix' );
 
                 echo '</h2>';
 
@@ -549,7 +576,7 @@ class SMP_Admin {
         <input
             type="checkbox"
             value="1"
-            name="smp_settings[enable_frontend_replacement]"
+            name="velocipix_settings[enable_frontend_replacement]"
             <?php checked(
                 1,
                 get_option(
@@ -582,7 +609,7 @@ class SMP_Admin {
         <input
             type="checkbox"
             value="0"
-            name="smp_settings[enable_debug_mode]"
+            name="velocipix_settings[enable_debug_mode]"
             <?php checked(
                 1,
                 get_option(
@@ -665,11 +692,11 @@ class SMP_Admin {
             ]
         );
 
-        $analyzer = new SMP_Elementor_Analyzer();
+        $analyzer = new VelociPix_Elementor_Analyzer();
 
         $frontend_analysis =
             get_transient(
-                'smp_frontend_analysis'
+                'velocipix_frontend_analysis'
             );
 
         if ( ! is_array( $frontend_analysis ) ) {
@@ -864,7 +891,7 @@ class SMP_Admin {
 
                     $oversized_found = true;
 
-                    echo '<div class="smp-page-grid" style="
+                    echo '<div class="velocipix-page-grid" style="
 
                         display:grid;
 

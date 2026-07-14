@@ -4,13 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-require_once SMP_PLUGIN_PATH . 'admin/class-smp-admin.php';
-require_once SMP_PLUGIN_PATH . 'includes/class-smp-image-optimizer.php';
-require_once SMP_PLUGIN_PATH . 'admin/class-smp-media-library.php';
-require_once SMP_PLUGIN_PATH . 'includes/class-smp-bulk-optimizer.php';
-require_once SMP_PLUGIN_PATH . 'includes/class-smp-elementor-analyzer.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'admin/class-velocipix-admin.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-image-optimizer.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'admin/class-velocipix-media-library.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-bulk-optimizer.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-elementor-analyzer.php';
 
-class SMP_Plugin {
+class VelociPix_Plugin {
 
     protected $loader;
     protected $admin;
@@ -20,11 +20,11 @@ class SMP_Plugin {
 
     public function __construct() {
 
-        $this->loader     = new SMP_Loader();
-        $this->admin      = new SMP_Admin();
-        $this->optimizer  = new SMP_Image_Optimizer();
-        $this->media_library = new SMP_Media_Library();
-        $this->bulk_optimizer  = new SMP_Bulk_Optimizer();
+        $this->loader     = new VelociPix_Loader();
+        $this->admin      = new VelociPix_Admin();
+        $this->optimizer  = new VelociPix_Image_Optimizer();
+        $this->media_library = new VelociPix_Media_Library();
+        $this->bulk_optimizer  = new VelociPix_Bulk_Optimizer();
 
         $this->define_admin_hooks();
         add_action(
@@ -34,7 +34,7 @@ class SMP_Plugin {
 
         add_action(
 
-            'wp_ajax_nopriv_smp_frontend_analysis',
+            'wp_ajax_nopriv_velocipix_frontend_analysis',
 
             [
                 $this,
@@ -44,7 +44,7 @@ class SMP_Plugin {
 
         add_action(
 
-            'wp_ajax_smp_frontend_analysis',
+            'wp_ajax_velocipix_frontend_analysis',
 
             [
                 $this,
@@ -58,7 +58,7 @@ class SMP_Plugin {
         //         $post_id = 36;
 
         //         $analyzer =
-        //             new SMP_Elementor_Analyzer();
+        //             new VelociPix_Elementor_Analyzer();
 
         //         $analyzer->debug_test(
         //             $post_id
@@ -84,23 +84,23 @@ class SMP_Plugin {
 
         wp_enqueue_script(
 
-            'smp-frontend-analyzer',
+            'velocipix-frontend-analyzer',
 
-            SMP_PLUGIN_URL .
-            'assets/js/smp-frontend-analyzer.js',
+            VELOCIPIX_PLUGIN_URL .
+            'assets/js/velocipix-frontend-analyzer.js',
 
             [],
 
-            SMP_VERSION,
+            VELOCIPIX_VERSION,
 
             true
         );
 
         wp_localize_script(
 
-            'smp-frontend-analyzer',
+            'velocipix-frontend-analyzer',
 
-            'smpFrontend',
+            'velocipixFrontend',
 
             [
                 'ajaxUrl' => admin_url(
@@ -108,12 +108,12 @@ class SMP_Plugin {
                 ),
 
                 'nonce' => wp_create_nonce(
-                    'smp_frontend_analysis'
+                    'velocipix_frontend_analysis'
                 ),
 
                 'debug' => ! empty(
                     get_option(
-                        'smp_settings'
+                        'velocipix_settings'
                     )['enable_debug_mode']
                 ),
             ]
@@ -123,7 +123,7 @@ class SMP_Plugin {
     public function receive_frontend_analysis() {
 
         check_ajax_referer(
-            'smp_frontend_analysis',
+            'velocipix_frontend_analysis',
             'nonce'
         );
 
@@ -159,7 +159,7 @@ class SMP_Plugin {
 
         $stored =
             get_transient(
-                'smp_frontend_analysis'
+                'velocipix_frontend_analysis'
             );
 
         if ( ! is_array( $stored ) ) {
@@ -172,7 +172,7 @@ class SMP_Plugin {
 
         set_transient(
 
-            'smp_frontend_analysis',
+            'velocipix_frontend_analysis',
 
             $stored,
 

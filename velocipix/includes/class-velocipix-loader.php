@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class SMP_Loader {
+class VelociPix_Loader {
 
     protected $actions = [];
     protected $filters = [];

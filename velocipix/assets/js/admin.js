@@ -8,7 +8,7 @@ jQuery(document).ready(function ($) {
 
 	let processing = false;
 
-	$('#smp-start-bulk-optimization').on(
+	$('#velocipix-start-bulk-optimization').on(
 		'click',
 		function () {
 
@@ -18,9 +18,9 @@ jQuery(document).ready(function ($) {
 
 			processing = true;
 
-			$('#smp-progress-bar-wrapper').show();
+			$('#velocipix-progress-bar-wrapper').show();
 
-			$('#smp-bulk-optimization-status').html(
+			$('#velocipix-bulk-optimization-status').html(
 				'<p>Optimization in progress...</p>'
 			);
 
@@ -33,15 +33,15 @@ jQuery(document).ready(function ($) {
 		$.post(
 			ajaxurl,
 			{
-				action: 'smp_bulk_optimize',
-				nonce: smp_bulk_optimizer.nonce,
+				action: 'velocipix_bulk_optimize',
+				nonce: velocipix_bulk_optimizer.nonce,
 				page: currentPage
 			},
 			function (response) {
 
 				if (!response.success) {
 
-					$('#smp-bulk-optimization-status').append(
+					$('#velocipix-bulk-optimization-status').append(
 						'<p>Optimization failed.</p>'
 					);
 
@@ -56,7 +56,7 @@ jQuery(document).ready(function ($) {
 					(data.page / data.max_pages) * 100
 				);
 
-				$('#smp-progress-bar').css(
+				$('#velocipix-progress-bar').css(
 					'width',
 					progress + '%'
 				);
@@ -81,7 +81,7 @@ jQuery(document).ready(function ($) {
 					remaining = 0;
 				}
 
-				$('#smp-bulk-optimization-status').html(
+				$('#velocipix-bulk-optimization-status').html(
 
 					'<p>' +
 
@@ -127,7 +127,7 @@ jQuery(document).ready(function ($) {
 
 				} else {
 
-					$('#smp-bulk-optimization-status').append(
+					$('#velocipix-bulk-optimization-status').append(
 						'<p><strong>Optimization complete.</strong></p>'
 					);
 

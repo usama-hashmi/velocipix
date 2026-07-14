@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class SMP_Image_Optimizer {
+class VelociPix_Image_Optimizer {
 
 	private $output_buffer_started = false;
 
@@ -33,7 +33,7 @@ class SMP_Image_Optimizer {
 
 		return wp_parse_args(
 
-			get_option( 'smp_settings', [] ),
+			get_option( 'velocipix_settings', [] ),
 
 			[
 				'enable_webp'                => 1,
