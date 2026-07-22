@@ -15,6 +15,7 @@ class VelociPix_Image_Optimizer {
             10,
             2
         );
+
 		add_action(
 			'template_redirect',
 			[ $this, 'start_output_buffer' ]
@@ -23,27 +24,12 @@ class VelociPix_Image_Optimizer {
 			'shutdown',
 			[ $this, 'end_output_buffer' ]
 		);
+		
 		add_action(
 			'delete_attachment',
 			[ $this, 'cleanup_attachment_formats' ]
 		);
     }
-
-	private function get_settings() {
-
-		return wp_parse_args(
-
-			get_option( 'velocipix_settings', [] ),
-
-			[
-				'enable_webp'                => 1,
-				'enable_avif'                => 1,
-				'webp_quality'               => 80,
-				'avif_quality'               => 60,
-				'enable_frontend_replacement' => 1,
-			]
-		);
-	}
 
     public function process_attachment_images( $metadata, $attachment_id ) {
 
@@ -71,6 +57,83 @@ class VelociPix_Image_Optimizer {
 
 		return $metadata;
 	}
+
+	private function get_settings() {
+
+		return wp_parse_args(
+
+			get_option( 'velocipix_settings', [] ),
+
+			[
+				'enable_webp'                => 1,
+				'enable_avif'                => 1,
+				'webp_quality'               => 80,
+				'avif_quality'               => 60,
+				'enable_frontend_replacement' => 1,
+			]
+		);
+	}
+
+    private function get_best_modern_image_url( $image_url ) {
+
+		$upload_dir = wp_upload_dir();
+
+		$baseurl = $upload_dir['baseurl'];
+		$basedir = $upload_dir['basedir'];
+
+		$file_path = str_replace( $baseurl, $basedir, $image_url );
+
+		$avif_path = preg_replace(
+			'/\\.(jpg|jpeg|png)$/i',
+			'.avif',
+			$file_path
+		);
+
+		$webp_path = preg_replace(
+			'/\\.(jpg|jpeg|png)$/i',
+			'.webp',
+			$file_path
+		);
+
+		// Prefer AVIF
+		if ( file_exists( $avif_path ) ) {
+
+			return preg_replace(
+				'/\\.(jpg|jpeg|png)$/i',
+				'.avif',
+				$image_url
+			);
+		}
+
+		// Fallback to WebP
+		if ( file_exists( $webp_path ) ) {
+
+			return preg_replace(
+				'/\\.(jpg|jpeg|png)$/i',
+				'.webp',
+				$image_url
+			);
+		}
+
+		// Fallback to original
+		return $image_url;
+	}
+
+    public function get_best_modern_image_by_attachment( int $attachment_id ) {
+
+        $image_url = wp_get_attachment_url(
+            $attachment_id
+        );
+
+        if ( ! $image_url ) {
+            return false;
+        }
+
+        return $this->get_best_modern_image_url(
+            $image_url
+        );
+
+    }
 
 	public function generate_modern_formats( $file_path ) {
 
@@ -341,55 +404,6 @@ class VelociPix_Image_Optimizer {
 		];
 	}
 
-
-
-
-	private function get_best_modern_image_url( $image_url ) {
-
-		$upload_dir = wp_upload_dir();
-
-		$baseurl = $upload_dir['baseurl'];
-		$basedir = $upload_dir['basedir'];
-
-		$file_path = str_replace( $baseurl, $basedir, $image_url );
-
-		$avif_path = preg_replace(
-			'/\\.(jpg|jpeg|png)$/i',
-			'.avif',
-			$file_path
-		);
-
-		$webp_path = preg_replace(
-			'/\\.(jpg|jpeg|png)$/i',
-			'.webp',
-			$file_path
-		);
-
-		// Prefer AVIF
-		if ( file_exists( $avif_path ) ) {
-
-			return preg_replace(
-				'/\\.(jpg|jpeg|png)$/i',
-				'.avif',
-				$image_url
-			);
-		}
-
-		// Fallback to WebP
-		if ( file_exists( $webp_path ) ) {
-
-			return preg_replace(
-				'/\\.(jpg|jpeg|png)$/i',
-				'.webp',
-				$image_url
-			);
-		}
-
-		// Fallback to original
-		return $image_url;
-	}
-
-
 	public function serve_webp_images( $url, $attachment_id ) {
 
 		$file_path = get_attached_file( $attachment_id );
@@ -469,7 +483,6 @@ class VelociPix_Image_Optimizer {
 
 		return $image;
 	}
-
 
 	public function start_output_buffer() {
 

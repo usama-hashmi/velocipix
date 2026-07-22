@@ -9,6 +9,8 @@ require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-image-optimizer.p
 require_once VELOCIPIX_PLUGIN_PATH . 'admin/class-velocipix-media-library.php';
 require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-bulk-optimizer.php';
 require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-elementor-analyzer.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-delivery-engine.php';
+require_once VELOCIPIX_PLUGIN_PATH . 'includes/class-velocipix-elementor-integration.php';
 
 class VelociPix_Plugin {
 
@@ -17,6 +19,13 @@ class VelociPix_Plugin {
     protected $optimizer;
     protected $media_library;
     protected $bulk_optimizer;
+    protected $delivery_engine;
+    /**
+     * Elementor integration.
+     *
+     * @var VelociPix_Elementor_Integration
+     */
+    private $elementor_integration;
 
     public function __construct() {
 
@@ -25,6 +34,10 @@ class VelociPix_Plugin {
         $this->optimizer  = new VelociPix_Image_Optimizer();
         $this->media_library = new VelociPix_Media_Library();
         $this->bulk_optimizer  = new VelociPix_Bulk_Optimizer();
+        $this->delivery_engine = new VelociPix_Delivery_Engine();
+        $this->elementor_integration = new VelociPix_Elementor_Integration(
+                $this->optimizer
+            );
 
         $this->define_admin_hooks();
         add_action(
