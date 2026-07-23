@@ -87,7 +87,7 @@ class VelociPix_Elementor_Analyzer {
 
                 // Classic Elementor Image Widget
                 if ( 'image' === $element['widgetType'] ) {
-
+                    
                     $image_id =
                         $element['settings']['image']['id']
                         ?? 0;
@@ -155,7 +155,7 @@ class VelociPix_Elementor_Analyzer {
 
             // Classic Elementor Image Widget
             if ( 'image' === $element['widgetType'] ) {
-
+                
                 $image_id =
                     $element['settings']['image']['id']
                     ?? 0;
@@ -175,6 +175,27 @@ class VelociPix_Elementor_Analyzer {
                 $image_size =
                     $element['settings']['image']['value']['size']['value']
                     ?? 'full';
+            }
+
+            $recommended_width =
+                $this->get_image_size_width(
+                    $image_size
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Elementor Custom Image Size
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                'custom' === $image_size &&
+                ! empty( $element['settings']['image_custom_dimension']['width'] )
+            ) {
+
+                $recommended_width = intval(
+                    $element['settings']['image_custom_dimension']['width']
+                );
             }
 
             if ( ! empty( $image_id ) ) {
@@ -200,11 +221,6 @@ class VelociPix_Elementor_Analyzer {
                     continue;
                 }
 
-                $recommended_width =
-                    $this->get_image_size_width(
-                        $image_size
-                    );
-
                 $frontend_analysis =
                     get_transient(
                         'velocipix_frontend_analysis'
@@ -215,6 +231,29 @@ class VelociPix_Elementor_Analyzer {
                         $image_id
                     ]
                     ?? [];
+
+                /*
+                |--------------------------------------------------------------------------
+                | Elementor sizing analysis
+                |--------------------------------------------------------------------------
+                */
+
+                $actual_width = $metadata['width'] ?? 0;
+
+                $is_oversized = false;
+                $severity     = 'optimized';
+
+                if ( $actual_width > ( $recommended_width * 4 ) ) {
+
+                    $is_oversized = true;
+                    $severity     = 'high';
+
+                } elseif ( $actual_width > ( $recommended_width * 2 ) ) {
+
+                    $is_oversized = true;
+                    $severity     = 'medium';
+
+                }
 
                 $images[] = [
 
@@ -229,55 +268,18 @@ class VelociPix_Elementor_Analyzer {
                         $image_size,
 
                     'recommended_width' =>
-                        $this->get_image_size_width(
-                            $image_size
-                        ),
+                        $recommended_width,
+                    
+                    'is_oversized' => $is_oversized,
+
+                    'severity' => $severity,
 
                     'width' =>
-                        $metadata['width']
-                        ?? 0,
+                        $actual_width,
 
                     'height' =>
                         $metadata['height']
                         ?? 0,
-
-                    'is_oversized' =>
-
-                    (
-                        (
-                            $metadata['width']
-                            ?? 0
-                        )
-
-                        >
-
-                        (
-                            $this->get_image_size_width(
-                                $image_size
-                            ) * 2
-                        )
-                    ),
-
-                    'severity' =>
-
-                    (
-                        (
-                            $metadata['width']
-                            ?? 0
-                        )
-
-                        >
-
-                        (
-                            $this->get_image_size_width(
-                                $image_size
-                            ) * 4
-                        )
-                    )
-
-                    ? 'high'
-
-                    : 'medium',
 
                     'frontend_data' => $frontend_data,
 
@@ -342,25 +344,40 @@ class VelociPix_Elementor_Analyzer {
         }
     }
 
-    private function get_image_size_width(
-        $image_size
-    ) {
+    private function get_image_size_width( $image_size ) {
 
         $sizes = [
 
-            'thumbnail' => 150,
+            'thumbnail'     => 150,
+            'medium'        => 300,
+            'medium_large'  => 768,
+            'large'         => 1024,
+            'full'          => 99999,
 
-            'medium' => 300,
-
-            'medium_large' => 768,
-
-            'large' => 1024,
-
-            'full' => 99999,
         ];
 
-        return $sizes[ $image_size ]
-            ?? 99999;
+        if ( isset( $sizes[ $image_size ] ) ) {
+            return $sizes[ $image_size ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Elementor custom dimensions (e.g. 1536x1536)
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            preg_match(
+                '/^(\d+)x(\d+)$/',
+                $image_size,
+                $matches
+            )
+        ) {
+
+            return intval( $matches[1] );
+        }
+
+        return 99999;
     }
 
     private function generate_insight_message(

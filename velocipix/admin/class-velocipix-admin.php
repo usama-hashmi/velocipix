@@ -770,55 +770,66 @@ class VelociPix_Admin {
                     $post->ID
                 );
 
-            $oversized_found = false;
+            $images_found = false;
+
+            $displayed_images = [];
 
             foreach ( $images as $image ) {
 
-                if ( empty( $image['is_oversized'] ) ) {
-                    continue;
+                $has_elementor_issue = ! empty( $image['is_oversized'] );
+
+                $has_frontend_issue =
+                    ! empty( $image['frontend_data'] ) &&
+                    ! empty( $image['frontend_data']['ratio'] ) &&
+                    floatval( $image['frontend_data']['ratio'] ) > 1.5;
+
+                if ( $has_elementor_issue || $has_frontend_issue ) {
+
+                    $displayed_images[] = $image;
                 }
+            }
 
-                if ( ! $oversized_found ) {
+            if ( empty( $displayed_images ) ) {
+                continue;
+            }
 
-                $total_images = 0;
+            foreach ( $displayed_images as $image ) {
 
-                $severe_count = 0;
+                if ( ! $images_found ) {    
 
+                $total_images = count( $displayed_images );
+
+                $severe_count   = 0;
                 $moderate_count = 0;
 
-                foreach (
-                    $images
-                    as
-                    $count_image
-                ) {
+                foreach ( $displayed_images as $count_image ) {
 
-                    if (
-                        empty(
-                            $count_image['is_oversized']
-                        )
-                    ) {
+                    $elementor_status =
+                        $count_image['severity'] ?? 'optimized';
 
-                        continue;
-                    }
+                    $frontend_status =
+                        $this->get_frontend_status(
+                            $count_image['frontend_data'] ?? []
+                        );
 
-                    $total_images++;
+                    $overall_status =
+                        $this->get_overall_status(
 
-                    if (
-                        'high'
-                        ===
-                        $count_image['severity']
-                    ) {
+                            $elementor_status,
 
-                        $severe_count++;
-                    }
+                            $frontend_status
 
-                    elseif (
-                        'medium'
-                        ===
-                        $count_image['severity']
-                    ) {
+                        );
 
-                        $moderate_count++;
+                    switch ( $overall_status ) {
+
+                        case 'high':
+                            $severe_count++;
+                            break;
+
+                        case 'medium':
+                            $moderate_count++;
+                            break;
                     }
                 }
 
@@ -889,8 +900,6 @@ class VelociPix_Admin {
 
                     echo '</div>';
 
-                    $oversized_found = true;
-
                     echo '<div class="velocipix-page-grid" style="
 
                         display:grid;
@@ -908,8 +917,11 @@ class VelociPix_Admin {
                         margin-bottom:48px;
 
                     ">';
+
+                    $images_found = true;
                     
                 }
+                
 
                 $issues_found = true;
 
@@ -980,18 +992,56 @@ class VelociPix_Admin {
                 }
 
                 $severity =
-                        $image['severity']
-                        ?? 'medium';
+                    $image['severity']
+                    ?? 'optimized';
 
-                    $severity_color =
-                        'high' === $severity
-                            ? '#d63638'
-                            : '#dba617';
+                                /*
+                |--------------------------------------------------------------------------
+                | Frontend Status
+                |--------------------------------------------------------------------------
+                */
 
-                    $severity_label =
-                        'high' === $severity
-                            ? 'Severely Oversized'
-                            : 'Moderately Oversized';
+                $frontend_status =
+                    $this->get_frontend_status(
+                        $frontend_data
+                    );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Overall Card Status
+                |--------------------------------------------------------------------------
+                */
+
+                $overall_status =
+                    $this->get_overall_status(
+
+                        $severity,
+
+                        $frontend_status
+
+                    );
+
+                $overall =
+                    $this->get_overall_display(
+                        $overall_status
+                    );
+
+                $overall_color =
+                    $overall['color'];
+
+                $overall_label =
+                    $overall['label'];
+
+                $elementor =
+                    $this->get_status_display(
+                        $severity
+                    );
+
+                $severity_color =
+                    $elementor['color'];
+
+                $severity_label =
+                    $elementor['label'];
 
                 echo '<div style="
 
@@ -999,7 +1049,7 @@ class VelociPix_Admin {
 
                 border:1px solid #dcdcde;
 
-                border-left:4px solid ' . esc_attr( $severity_color ) . ';
+                // border-left:4px solid #2271b1;
 
                 border-radius:8px;
 
@@ -1093,6 +1143,35 @@ class VelociPix_Admin {
                 ">';
 
                     echo '<div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:18px;
+                    ">';
+
+                    echo '<h4 style="
+                        margin:0 0 0 0;
+                        font-size:16px;
+                        font-weight:600;">
+                    Elementor Image Analysis
+                    </h4>';
+
+                    echo '<span style="
+                    padding:6px 14px;
+                    border-radius:999px;
+                    background:' . esc_attr( $overall_color ) . '20;
+                    color:' . esc_attr( $overall_color ) . ';
+                    font-weight:600;
+                    font-size:12px;
+                    ">';
+
+                    echo esc_html( $overall_label );
+
+                    echo '</span>';
+
+                    echo '</div>';
+
+                    echo '<div style="
                         margin-bottom:4px;
                     ">';
 
@@ -1120,11 +1199,48 @@ class VelociPix_Admin {
                         margin-bottom:4px;
                     ">';
 
-                    echo '<strong>Selected Size:</strong> ';
+                    echo '<strong>Selected Image Size:</strong> ';
 
-                    echo esc_html(
-                        $image['image_size']
-                    );
+                    $image_size = $image['image_size'];
+
+                    if ( 'custom' === $image_size ) {
+
+                        echo 'Custom (' .
+                            intval( $image['recommended_width'] ) .
+                            ' × ' .
+                            intval( $image['recommended_width'] ) .
+                            ' px)';
+
+                    } else {
+
+                        if (
+                            preg_match(
+                                '/^(\d+)x(\d+)$/',
+                                $image_size,
+                                $matches
+                            )
+                        ) {
+
+                            echo 'Custom (' .
+                                intval( $matches[1] ) .
+                                ' × ' .
+                                intval( $matches[2] ) .
+                                ' px)';
+
+                        } else {
+
+                            echo ucfirst(
+                                str_replace(
+                                    '_',
+                                    ' ',
+                                    $image_size
+                                )
+                            ) .
+                            ' (' .
+                            intval( $image['recommended_width'] ) .
+                            ' px)';
+                        }
+                    }
 
                     echo '</div>';
 
@@ -1132,11 +1248,25 @@ class VelociPix_Admin {
                         margin-bottom:4px;
                     ">';
 
-                    echo '<strong>Actual Width:</strong> ';
+                    echo '<strong>Original Image Width:</strong> ';
 
                     echo esc_html(
                         $image['width'] . 'px'
                     );
+
+                    echo '</div>';
+
+                    echo '<div style="
+                    margin-bottom:4px;
+                    ">';
+
+                    echo '<strong>Recommended Width:</strong> ';
+
+                    echo intval(
+                        $image['recommended_width']
+                    );
+
+                    echo 'px';
 
                     echo '</div>';
 
@@ -1171,6 +1301,53 @@ class VelociPix_Admin {
                         );
 
                         echo '</span>';
+                    echo '<div style="
+
+                                margin-top:20px;
+
+                                padding:0 16px;
+
+                                background:#f6f7f7;
+
+                                border:1px solid #dcdcde;
+
+                                border-radius:8px;
+
+                                color:#1d2327;
+
+                                line-height:1.6;
+
+                                font-size:13px;
+
+                            ">';
+                    switch ( $severity ) {
+
+                        case 'high':
+
+                            echo '<p>
+                    The original image is significantly larger than required for the selected Elementor image size.
+                    </p>';
+
+                            break;
+
+                        case 'medium':
+
+                            echo '<p>
+                    The original image is somewhat larger than required for the selected Elementor image size.
+                    </p>';
+
+                            break;
+
+                        default:
+
+                            echo '<p>
+                    The selected Elementor image size is appropriate for this image.
+                    </p>';
+
+                            break;
+                    }
+
+                    echo '</div>';
 
                     echo '</div>';
 
@@ -1186,6 +1363,23 @@ class VelociPix_Admin {
                         font-weight:600;
                     ">Frontend Rendering Analysis</h4>';
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Frontend Rendering Status
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $frontend =
+                        $this->get_status_display(
+                            $frontend_status
+                        );
+
+                    $frontend_color =
+                        $frontend['color'];
+
+                    $frontend_label =
+                        $frontend['label'];
+
                     if (
                         ! empty(
                             $frontend_data['rendered_width']
@@ -1196,10 +1390,7 @@ class VelociPix_Admin {
                         )
                     ) {
 
-                        echo '<div style="
-                            line-height:1.8;
-                            font-size:14px;
-                        ">';
+                        echo '<div>';
 
                         echo '<strong>Rendered Width:</strong> ';
                         echo esc_html(
@@ -1207,7 +1398,7 @@ class VelociPix_Admin {
                         );
                         echo 'px<br>';
 
-                        echo '<strong>Downloaded Width:</strong> ';
+                        echo '<strong>Downloaded Image Width:</strong> ';
                         echo esc_html(
                             $frontend_data['natural_width']
                         );
@@ -1224,43 +1415,70 @@ class VelociPix_Admin {
 
                         echo '</div>';
 
-                        if (
-                            ! empty( $image['insight'] )
-                        ) {
+                        echo '<div style="margin-bottom:18px; margin-top:10px">';
 
-                            echo '<div style="
+                        echo '<strong>Status:</strong> ';
 
-                                margin-top:20px;
+                        echo '<span style="
+                            display:inline-block;
+                            padding:6px 14px;
+                            border-radius:999px;
+                            background:' . esc_attr( $frontend_color ) . '20;
+                            color:' . esc_attr( $frontend_color ) . ';
+                            font-weight:600;
+                        ">';
 
-                                padding:14px 16px;
+                        echo esc_html( $frontend_label );
 
-                                background:#f6f7f7;
+                        echo '</span>';
 
-                                border:1px solid #dcdcde;
+                        echo '<div style="
+                            margin-top:10px;
+                            color:#50575e;
+                            line-height:1.6;
+                            font-size:13px;
+                        ">';
 
-                                border-radius:8px;
+                        // echo esc_html( $frontend_message );
 
-                                color:#1d2327;
+                        echo '</div>';
 
-                                line-height:1.6;
+                        echo '</div>';
 
-                                font-size:13px;
+                        if ( 'optimized' !== $frontend_status ) {
 
-                            ">';
+                            if ( ! empty( $image['insight'] ) ) {
 
-                            echo '<strong>Insight:</strong><br>';
+                                echo '<div style="
 
-                            echo esc_html(
-                                $image['insight']
-                            );
+                                    margin-top:20px;
 
-                            echo '</div>';
+                                    padding:14px 16px;
 
-                            if (
-                                ! empty(
-                                    $image['fix_suggestion']
-                                )
-                            ) {
+                                    background:#f6f7f7;
+
+                                    border:1px solid #dcdcde;
+
+                                    border-radius:8px;
+
+                                    color:#1d2327;
+
+                                    line-height:1.6;
+
+                                    font-size:13px;
+
+                                ">';
+
+                                echo '<strong>Insight:</strong><br>';
+
+                                echo esc_html(
+                                    $image['insight']
+                                );
+
+                                echo '</div>';
+                            }
+
+                            if ( ! empty( $image['fix_suggestion'] ) ) {
 
                                 echo '<div style="
 
@@ -1291,11 +1509,7 @@ class VelociPix_Admin {
                                 echo '</div>';
                             }
 
-                        }
-
-                        elseif (
-                            ! empty( $image['frontend_analyzed'] )
-                        ) {
+                        } else {
 
                             echo '<div style="
 
@@ -1319,7 +1533,7 @@ class VelociPix_Admin {
 
                             ">';
 
-                            echo '✓ Frontend image delivery appears optimized.';
+                            echo '✓ No frontend rendering issues detected.';
 
                             echo '</div>';
                         }
@@ -1361,15 +1575,6 @@ class VelociPix_Admin {
                     }
 
                     echo '</div>';
-                    
-
-                    $status_color = '#dba617';
-
-                    if (
-                        'severe' === $image['severity']
-                    ) {
-                        $status_color = '#d63638';
-                    }
 
                     $edit_url = admin_url(
                         'post.php?post=' .
@@ -1415,7 +1620,7 @@ class VelociPix_Admin {
 
             }
 
-            if ( $oversized_found ) {
+           if ( $images_found ) {
 
                 echo '</div>';
             }
@@ -1459,7 +1664,7 @@ class VelociPix_Admin {
 
             ">';
 
-            echo '✓ No oversized Elementor images detected';
+            echo '✓ No Elementor sizing or frontend delivery issues detected.';
 
             echo '</h3>';
 
@@ -1468,7 +1673,7 @@ class VelociPix_Admin {
                 font-size:14px;
             ">';
 
-            echo 'Your Elementor image delivery currently appears optimized.';
+            echo 'Your Elementor and frontend image delivery currently appears optimized.';
 
             echo '</p>';
 
@@ -1476,6 +1681,97 @@ class VelociPix_Admin {
         }
 
         echo '</div>'; // grid wrapper
+    }
+
+    private function get_frontend_status( $frontend_data ) {
+
+        if ( empty( $frontend_data ) ) {
+            return 'optimized';
+        }
+
+        $ratio = floatval(
+            $frontend_data['ratio'] ?? 1
+        );
+
+        if ( $ratio >= 4 ) {
+            return 'high';
+        }
+
+        if ( $ratio >= 1.5 ) {
+            return 'medium';
+        }
+
+        return 'optimized';
+    }
+
+    private function get_overall_status(
+        $elementor_status,
+        $frontend_status
+    ) {
+
+        if (
+            'high' === $elementor_status ||
+            'high' === $frontend_status
+        ) {
+            return 'high';
+        }
+
+        if (
+            'medium' === $elementor_status ||
+            'medium' === $frontend_status
+        ) {
+            return 'medium';
+        }
+
+        return 'optimized';
+    }
+
+    private function get_status_display( $status ) {
+
+        switch ( $status ) {
+
+            case 'high':
+                return [
+                    'label' => 'Severe',
+                    'color' => '#d63638',
+                ];
+
+            case 'medium':
+                return [
+                    'label' => 'Moderate',
+                    'color' => '#dba617',
+                ];
+
+            default:
+                return [
+                    'label' => 'Optimized',
+                    'color' => '#46b450',
+                ];
+        }
+    }
+
+    private function get_overall_display( $status ) {
+
+        switch ( $status ) {
+
+            case 'high':
+                return [
+                    'label' => 'Severe Issue',
+                    'color' => '#d63638',
+                ];
+
+            case 'medium':
+                return [
+                    'label' => 'Needs Attention',
+                    'color' => '#dba617',
+                ];
+
+            default:
+                return [
+                    'label' => 'Healthy',
+                    'color' => '#46b450',
+                ];
+        }
     }
 
     public function render_system_status() {
