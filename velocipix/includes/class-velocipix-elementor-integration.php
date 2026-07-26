@@ -28,20 +28,42 @@ class VelociPix_Elementor_Integration {
 
     }
 
-    public function replace_background_images( $post_css, $element ) {
+    private function replace_background_setting(
+        $post_css,
+        $element,
+        $setting_key,
+        $target_query = 'all'
+    ) {
 
         $settings = $element->get_settings();
 
-        if ( empty( $settings['background_image']['id'] ) ) {
+        if (
+            empty( $settings[ $setting_key ]['id'] )
+        ) {
             return;
         }
 
-        $attachment_id = (int) $settings['background_image']['id'];
+        $plugin_settings = get_option(
+            'velocipix_settings',
+            []
+        );
 
-        $optimized_url = $this->optimizer
-            ->get_best_modern_image_by_attachment(
-                $attachment_id
-            );
+        if (
+            empty(
+                $plugin_settings['enable_frontend_replacement']
+            )
+        ) {
+            return;
+        }
+
+        $attachment_id = (int)
+            $settings[ $setting_key ]['id'];
+
+        $optimized_url =
+            $this->optimizer
+                ->get_best_modern_image_by_attachment(
+                    $attachment_id
+                );
 
         if ( ! $optimized_url ) {
             return;
@@ -52,41 +74,107 @@ class VelociPix_Elementor_Integration {
         $rules = $stylesheet->get_rules();
 
         if ( empty( $rules['all'] ) ) {
-                return;
-            }
+            return;
+        }
 
-        foreach ( $rules['all'] as $selector => $properties ) {
-            
-            if ( empty( $properties['background-image'] ) ) {
+        $unique_selector =
+            $post_css->get_element_unique_selector(
+                $element
+            );
+
+        foreach ( $rules as $query_hash => $selectors ) {
+
+            if ( $query_hash !== $target_query ) {
                 continue;
             }
-            $unique_selector =
-                $post_css->get_element_unique_selector(
-                    $element
+
+            foreach (
+                $selectors as $selector => $properties
+            ) {
+
+                if (
+                    strpos(
+                        $selector,
+                        $unique_selector
+                    ) === false
+                ) {
+                    continue;
+                }
+
+                if (
+                    empty(
+                        $properties['background-image']
+                    )
+                ) {
+                    continue;
+                }
+
+                $properties['background-image'] =
+                    'url("' .
+                    esc_url_raw( $optimized_url ) .
+                    '")';
+
+                $stylesheet->add_rules(
+
+                    $selector,
+
+                    $properties,
+
+                    'all' === $query_hash
+                        ? null
+                        : [ 'max' => str_replace( 'max_', '', $query_hash ) ]
+
                 );
 
-            if ( strpos( $selector, $unique_selector ) === false ) {
-                continue;
+                break;
             }
-            $stylesheet->add_rules(
-
-                $selector,
-
-                [
-                    'background-image' =>
-                        'url("' . esc_url_raw( $optimized_url ) . '")',
-                ]
-
-            );
 
             break;
         }
+    }
 
-        // Don't modify anything yet.
-        // Just inspect the array structure.
+    public function replace_background_images( $post_css, $element ) {
+        
+        $this->replace_background_setting(
+            $post_css,
+            $element,
+            'background_image',
+            'all'
+        );
 
-        error_log(
-            print_r( $rules, true )
+        $this->replace_background_setting(
+            $post_css,
+            $element,
+            'background_image_tablet',
+            'max_tablet'
+        );
+
+        $this->replace_background_setting(
+            $post_css,
+            $element,
+            'background_image_mobile',
+            'max_mobile'
+        );
+
+        $this->replace_background_setting(
+            $post_css,
+            $element,
+            'background_overlay_image',
+            'all'
+        );
+
+        $this->replace_background_setting(
+            $post_css,
+            $element,
+            'background_overlay_image_tablet',
+            'max_tablet'
+        );
+
+        $this->replace_background_setting(
+            $post_css,
+            $element,
+            'background_overlay_image_mobile',
+            'max_mobile'
         );
     }
 
