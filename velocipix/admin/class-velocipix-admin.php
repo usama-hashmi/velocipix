@@ -19,6 +19,13 @@ class VelociPix_Admin {
             [ $this, 'register_settings' ]
         );
 
+        add_action(
+            'update_option_velocipix_settings',
+            [ $this, 'handle_settings_updated' ],
+            10,
+            2
+        );
+
     }
 
     private $option_name = 'velocipix_settings';
@@ -134,7 +141,8 @@ class VelociPix_Admin {
     }
 
     public function sanitize_settings( $input ) {
-        return [
+
+        $settings = [
 
             'enable_webp' => isset(
                 $input['enable_webp']
@@ -179,6 +187,29 @@ class VelociPix_Admin {
                 : 0,
 
         ];
+
+        return $settings;
+    }
+
+    public function handle_settings_updated(
+        $old_value,
+        $new_value
+    ) {
+
+        if (
+
+            ( $old_value['enable_frontend_replacement'] ?? 0 )
+
+            !==
+
+            ( $new_value['enable_frontend_replacement'] ?? 0 )
+
+        ) {
+
+            $this->regenerate_elementor_css();
+
+        }
+
     }
 
     public function enqueue_assets( $hook ) {
@@ -1681,6 +1712,21 @@ class VelociPix_Admin {
         }
 
         echo '</div>'; // grid wrapper
+    }
+
+    private function regenerate_elementor_css() {
+
+        if ( ! did_action( 'elementor/loaded' ) ) {
+            return;
+        }
+
+        \Elementor\Plugin::$instance
+            ->files_manager
+            ->clear_cache();
+
+        \Elementor\Plugin::$instance
+            ->files_manager
+            ->generate_css();
     }
 
     private function get_frontend_status( $frontend_data ) {
