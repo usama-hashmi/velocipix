@@ -59,10 +59,18 @@ class VelociPix_Elementor_Integration {
         $attachment_id = (int)
             $settings[ $setting_key ]['id'];
 
+        $image_size =
+            $settings[ $setting_key ]['size']
+            ?? 'full';
+
         $optimized_url =
             $this->optimizer
-                ->get_best_modern_image_by_attachment(
-                    $attachment_id
+                ->get_best_modern_image_by_attachment_size(
+
+                    $attachment_id,
+
+                    $image_size
+
                 );
 
         if ( ! $optimized_url ) {

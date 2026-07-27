@@ -135,6 +135,31 @@ class VelociPix_Image_Optimizer {
 
     }
 
+    public function get_best_modern_image_by_attachment_size(
+
+        int $attachment_id,
+
+        $image_size = 'full'
+
+    ) {
+
+        $image_url = wp_get_attachment_image_url(
+
+            $attachment_id,
+
+            $image_size
+
+        );
+
+        if ( ! $image_url ) {
+            return false;
+        }
+
+        return $this->get_best_modern_image_url(
+            $image_url
+        );
+    }
+
 	public function generate_modern_formats( $file_path ) {
 
 		$settings = $this->get_settings();

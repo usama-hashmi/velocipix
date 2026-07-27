@@ -177,6 +177,64 @@ class VelociPix_Elementor_Analyzer {
                     ?? 'full';
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Classic Container Background
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+
+                empty( $image_id )
+
+                &&
+
+                ! empty(
+                    $element['settings']['background_image']['id']
+                )
+
+            ) {
+
+                $image_id =
+                    $element['settings']['background_image']['id'];
+
+                $image_size =
+                    $element['settings']['background_image']['size']
+                    ?? 'full';
+
+                $element['widgetType'] =
+                    'container-background';
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Classic Background Overlay
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+
+                empty( $image_id )
+
+                &&
+
+                ! empty(
+                    $element['settings']['background_overlay_image']['id']
+                )
+
+            ) {
+
+                $image_id =
+                    $element['settings']['background_overlay_image']['id'];
+
+                $image_size =
+                    $element['settings']['background_overlay_image']['size']
+                    ?? 'full';
+
+                $element['widgetType'] =
+                    'background-overlay';
+            }
+
             $recommended_width =
                 $this->get_image_size_width(
                     $image_size
