@@ -284,10 +284,20 @@ class VelociPix_Elementor_Analyzer {
                         'velocipix_frontend_analysis'
                     );
 
+                $key =
+
+                    $post_id
+
+                    . ':'
+
+                    . $image_id;
+
                 $frontend_data =
+
                     $frontend_analysis[
-                        $image_id
+                        $key
                     ]
+
                     ?? [];
 
                 /*

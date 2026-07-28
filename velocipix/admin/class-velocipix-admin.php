@@ -725,15 +725,6 @@ class VelociPix_Admin {
 
         $analyzer = new VelociPix_Elementor_Analyzer();
 
-        $frontend_analysis =
-            get_transient(
-                'velocipix_frontend_analysis'
-            );
-
-        if ( ! is_array( $frontend_analysis ) ) {
-            $frontend_analysis = [];
-        }
-
         echo '<div style="margin-top:10px;">';
 
         if ( empty( $posts ) ) {
@@ -957,9 +948,7 @@ class VelociPix_Admin {
                 $issues_found = true;
 
                 $frontend_data =
-                    $frontend_analysis[
-                        $image['attachment_id']
-                    ]
+                    $image['frontend_data']
                     ?? null;
 
                 if (
@@ -995,6 +984,7 @@ class VelociPix_Admin {
                         ||
 
                         (
+
                             isset(
                                 $frontend_data['ratio']
                             )
@@ -1002,6 +992,7 @@ class VelociPix_Admin {
                             &&
 
                             (
+
                                 ! is_numeric(
                                     $frontend_data['ratio']
                                 )
@@ -1013,13 +1004,17 @@ class VelociPix_Admin {
                                 ||
 
                                 $frontend_data['ratio'] > 20
+
                             )
+
                         )
+
                     )
 
                 ) {
 
                     $frontend_data = null;
+
                 }
 
                 $severity =

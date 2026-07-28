@@ -124,6 +124,8 @@ class VelociPix_Plugin {
                     'velocipix_frontend_analysis'
                 ),
 
+                'post_id' => get_the_ID(),
+
                 'debug' => ! empty(
                     get_option(
                         'velocipix_settings'
@@ -134,7 +136,7 @@ class VelociPix_Plugin {
     }
 
     public function receive_frontend_analysis() {
-
+    
         check_ajax_referer(
             'velocipix_frontend_analysis',
             'nonce'
@@ -144,6 +146,11 @@ class VelociPix_Plugin {
 
             'attachment_id' => intval(
                 $_POST['attachment_id']
+                ?? 0
+            ),
+
+            'post_id' => intval(
+                $_POST['post_id']
                 ?? 0
             ),
 
@@ -179,9 +186,15 @@ class VelociPix_Plugin {
             $stored = [];
         }
 
-        $stored[
-            $data['attachment_id']
-        ] = $data;
+        $key =
+
+            $data['post_id']
+
+            . ':'
+
+            . $data['attachment_id'];
+
+        $stored[ $key ] = $data;
 
         set_transient(
 

@@ -85,6 +85,9 @@ window.addEventListener(
                             attachment_id:
                                 imageId,
 
+                            post_id: 
+                                velocipixFrontend.post_id,
+
                             rendered_width:
                                 renderedWidth,
 
