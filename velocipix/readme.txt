@@ -4,18 +4,18 @@ Tags: webp, avif, image optimization, elementor, core web vitals
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Optimize WordPress image delivery with WebP, AVIF, frontend rendering analysis, and Elementor image intelligence.
 
 == Description ==
-VelociPix is a modern image optimization plugin for WordPress that goes beyond simple image conversion.
+VelociPix is an image optimization plugin for WordPress that generates WebP and AVIF images while helping you identify oversized image delivery, frontend rendering inefficiencies, and Elementor image optimization opportunities.
 In addition to generating WebP and AVIF images, VelociPix helps you understand how images are actually delivered on the frontend by combining modern image formats, frontend rendering analysis, and advanced Elementor image intelligence.
 This allows you to identify oversized image delivery, wasted bandwidth, and optimization opportunities that traditional compression-focused plugins often miss.
 
 == Why VelociPix? ==
-Many image optimization plugins primarily focus on file compression.
+Most image optimization plugins focus primarily on generating smaller image files.
 VelociPix expands on this by helping users understand how images are actually delivered on the frontend.
 VelociPix focuses on:
 •	Frontend image delivery efficiency
@@ -123,20 +123,18 @@ Yes. The plugin includes bulk optimization support for existing media library im
 
 == Changelog ==
 
-= 1.0.0 =
-•	Initial public release.
-•	Automatic WebP generation.
-•	Automatic AVIF generation.
-•	Frontend image replacement.
-•	Bulk media optimization.
-•	Frontend image delivery analysis.
-•	Elementor Image Intelligence.
-•	Oversized image detection.
-•	Frontend rendering diagnostics.
-•	Media Library optimization status column.
-•	Optimization insights and recommendations.
+= 1.1.0 =
+* Added Frontend Analysis for Elementor images and backgrounds.
+* Added improved Elementor Intelligence reporting.
+* Added support for responsive background image analysis.
+* Improved frontend rendering detection.
+* Improved Media Library frontend status reporting.
+* Improved duplicate image handling across multiple pages.
+* Improved Full Size image display.
+* Improved Overfetch Ratio reporting.
+* Improved compatibility, stability, and overall reliability.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial public release of VelociPix.
+= 1.1.0 =
+Adds Frontend Analysis improvements, responsive background support, Media Library enhancements, and multiple stability improvements.

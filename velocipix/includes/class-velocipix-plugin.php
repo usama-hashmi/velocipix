@@ -26,16 +26,48 @@ class VelociPix_Plugin {
      * @var VelociPix_Elementor_Integration
      */
     private $elementor_integration;
+    private $analyzer;
 
     public function __construct() {
 
-        $this->loader     = new VelociPix_Loader();
-        $this->admin      = new VelociPix_Admin();
-        $this->optimizer  = new VelociPix_Image_Optimizer();
+        $this->loader = new VelociPix_Loader();
+
+        $this->optimizer = new VelociPix_Image_Optimizer();
+
         $this->media_library = new VelociPix_Media_Library();
-        $this->bulk_optimizer  = new VelociPix_Bulk_Optimizer();
+
+        $this->bulk_optimizer = new VelociPix_Bulk_Optimizer();
+
         $this->delivery_engine = new VelociPix_Delivery_Engine();
-        $this->elementor_integration = new VelociPix_Elementor_Integration(
+
+        /*
+        |--------------------------------------------------------------------------
+        | Analyzer
+        |--------------------------------------------------------------------------
+        */
+
+        $this->analyzer =
+            new VelociPix_Elementor_Analyzer();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Admin
+        |--------------------------------------------------------------------------
+        */
+
+        $this->admin =
+            new VelociPix_Admin(
+                $this->analyzer
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Elementor Integration
+        |--------------------------------------------------------------------------
+        */
+
+        $this->elementor_integration =
+            new VelociPix_Elementor_Integration(
                 $this->optimizer
             );
 
@@ -64,20 +96,7 @@ class VelociPix_Plugin {
                 'receive_frontend_analysis'
             ]
         );
-        // add_action(
-        //     'admin_notices',
-        //     function () {
-
-        //         $post_id = 36;
-
-        //         $analyzer =
-        //             new VelociPix_Elementor_Analyzer();
-
-        //         $analyzer->debug_test(
-        //             $post_id
-        //         );
-        //     }
-        // );
+        
     }
 
     private function define_admin_hooks() {
@@ -109,6 +128,23 @@ class VelociPix_Plugin {
             true
         );
 
+        $background_attachments = [];
+
+        if (
+            is_singular()
+            &&
+            get_the_ID()
+        ) {
+
+            $background_attachments =
+
+                $this->analyzer
+                    ->get_background_attachment_map(
+                        get_the_ID()
+                    );
+
+        }
+
         wp_localize_script(
 
             'velocipix-frontend-analyzer',
@@ -116,6 +152,7 @@ class VelociPix_Plugin {
             'velocipixFrontend',
 
             [
+
                 'ajaxUrl' => admin_url(
                     'admin-ajax.php'
                 ),
@@ -126,11 +163,14 @@ class VelociPix_Plugin {
 
                 'post_id' => get_the_ID(),
 
+                'backgroundAttachments' => $background_attachments,
+
                 'debug' => ! empty(
                     get_option(
                         'velocipix_settings'
                     )['enable_debug_mode']
-                ),
+                )
+
             ]
         );
     }

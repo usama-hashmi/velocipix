@@ -7,7 +7,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class VelociPix_Admin {
 
-    public function __construct() {
+    private $analyzer;
+
+    public function __construct( $analyzer ) {
+
+        $this->analyzer = $analyzer;
 
         add_action(
             'admin_menu',
@@ -723,8 +727,6 @@ class VelociPix_Admin {
             ]
         );
 
-        $analyzer = new VelociPix_Elementor_Analyzer();
-
         echo '<div style="margin-top:10px;">';
 
         if ( empty( $posts ) ) {
@@ -788,7 +790,7 @@ class VelociPix_Admin {
         foreach ( $posts as $post ) {
 
             $images =
-                $analyzer->get_elementor_image_data(
+                $this->analyzer->get_elementor_image_data(
                     $post->ID
                 );
 
@@ -1255,16 +1257,23 @@ class VelociPix_Admin {
 
                         } else {
 
-                            echo ucfirst(
-                                str_replace(
-                                    '_',
-                                    ' ',
-                                    $image_size
-                                )
-                            ) .
-                            ' (' .
-                            intval( $image['recommended_width'] ) .
-                            ' px)';
+                            if ( intval( $image['recommended_width'] ) >= 99999 ) {
+
+                                echo 'Full Size';
+
+                            } else {
+
+                                echo ucfirst(
+                                    str_replace(
+                                        '_',
+                                        ' ',
+                                        $image_size
+                                    )
+                                ) .
+                                ' (' .
+                                intval( $image['recommended_width'] ) .
+                                ' px)';
+                            }
                         }
                     }
 
@@ -1279,20 +1288,6 @@ class VelociPix_Admin {
                     echo esc_html(
                         $image['width'] . 'px'
                     );
-
-                    echo '</div>';
-
-                    echo '<div style="
-                    margin-bottom:4px;
-                    ">';
-
-                    echo '<strong>Recommended Width:</strong> ';
-
-                    echo intval(
-                        $image['recommended_width']
-                    );
-
-                    echo 'px';
 
                     echo '</div>';
 
@@ -1424,21 +1419,38 @@ class VelociPix_Admin {
                         );
                         echo 'px<br>';
 
-                        echo '<strong>Downloaded Image Width:</strong> ';
+                        echo '<strong>Downloaded Image Size:</strong> ';
                         echo esc_html(
                             $frontend_data['natural_width']
                         );
                         echo 'px<br>';
 
-                        echo '<strong>Overfetch Ratio:</strong> ';
-                        echo esc_html(
-                            round(
-                                $frontend_data['ratio'],
-                                1
-                            )
-                        );
-                        echo 'x';
+                        if (
 
+                            ! empty(
+                                $image['frontend_data']
+                            )
+
+                            &&
+
+                            $image['frontend_data']['natural_width']
+
+                            >
+
+                            $image['frontend_data']['rendered_width']
+
+                        ) {
+                            echo '<strong>Overfetch Ratio:</strong> ';
+                            echo esc_html(
+                                round(
+                                    $frontend_data['ratio'],
+                                    1
+                                )
+                            );
+                            echo 'x';
+
+                        }
+                        
                         echo '</div>';
 
                         echo '<div style="margin-bottom:18px; margin-top:10px">';
@@ -1464,8 +1476,6 @@ class VelociPix_Admin {
                             line-height:1.6;
                             font-size:13px;
                         ">';
-
-                        // echo esc_html( $frontend_message );
 
                         echo '</div>';
 

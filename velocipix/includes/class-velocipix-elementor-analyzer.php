@@ -123,6 +123,144 @@ class VelociPix_Elementor_Analyzer {
 		}
 	}
 
+    public function get_background_attachment_map( $post_id ) {
+
+        $map = [];
+
+        $document = \Elementor\Plugin::$instance
+            ->documents
+            ->get( $post_id );
+
+        if ( ! $document ) {
+            return $map;
+        }
+
+        $elements = $document->get_elements_data();
+
+        $this->extract_background_selectors(
+            $elements,
+            $map
+        );
+
+        return $map;
+    }
+
+    private function extract_background_selectors(
+        $elements,
+        &$map
+    ) {
+
+        if ( empty( $elements ) ) {
+            return;
+        }
+
+        foreach ( $elements as $element ) {
+
+            if (
+                empty( $element['id'] )
+            ) {
+
+                if ( ! empty( $element['elements'] ) ) {
+
+                    $this->extract_background_selectors(
+                        $element['elements'],
+                        $map
+                    );
+
+                }
+
+                continue;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Desktop Background
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                ! empty(
+                    $element['settings']['background_image']['id']
+                )
+            ) {
+
+                $map[
+                    $element['id']
+                ] = (int)
+                    $element['settings']['background_image']['id'];
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Tablet Background
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                ! empty(
+                    $element['settings']['background_image_tablet']['id']
+                )
+            ) {
+
+                $map[
+                    $element['id']
+                ] = (int)
+                    $element['settings']['background_image_tablet']['id'];
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mobile Background
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                ! empty(
+                    $element['settings']['background_image_mobile']['id']
+                )
+            ) {
+
+                $map[
+                    $element['id']
+                ] = (int)
+                    $element['settings']['background_image_mobile']['id'];
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Overlay
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                ! empty(
+                    $element['settings']['background_overlay_image']['id']
+                )
+            ) {
+
+                $map[
+                    $element['id']
+                ] = (int)
+                    $element['settings']['background_overlay_image']['id'];
+
+            }
+
+            if ( ! empty( $element['elements'] ) ) {
+
+                $this->extract_background_selectors(
+                    $element['elements'],
+                    $map
+                );
+
+            }
+
+        }
+
+    }
+
     private function extract_image_data(
         $elements,
         &$images,
@@ -137,16 +275,33 @@ class VelociPix_Elementor_Analyzer {
 
             if ( empty( $element['widgetType'] ) ) {
 
-                if ( ! empty( $element['elements'] ) ) {
+                $has_background =
 
-                    $this->extract_image_data(
-                        $element['elements'],
-                        $images,
-                        $post_id
+                    ! empty(
+                        $element['settings']['background_image']['id']
+                    )
+
+                    ||
+
+                    ! empty(
+                        $element['settings']['background_overlay_image']['id']
                     );
+
+                if ( ! $has_background ) {
+
+                    if ( ! empty( $element['elements'] ) ) {
+
+                        $this->extract_image_data(
+                            $element['elements'],
+                            $images,
+                            $post_id
+                        );
+                    }
+
+                    continue;
+
                 }
 
-                continue;
             }
 
             $image_id = 0;
@@ -154,7 +309,11 @@ class VelociPix_Elementor_Analyzer {
             $image_size = 'full';
 
             // Classic Elementor Image Widget
-            if ( 'image' === $element['widgetType'] ) {
+            if (
+                isset( $element['widgetType'] )
+                &&
+                'image' === $element['widgetType']
+            ) {
                 
                 $image_id =
                     $element['settings']['image']['id']
@@ -166,7 +325,11 @@ class VelociPix_Elementor_Analyzer {
             }
 
             // Elementor Atomic Image Widget
-            if ( 'e-image' === $element['widgetType'] ) {
+            if (
+                isset( $element['widgetType'] )
+                &&
+                'e-image' === $element['widgetType']
+            ) {
 
                 $image_id =
                     $element['settings']['image']['value']['src']['value']['id']['value']
@@ -203,7 +366,7 @@ class VelociPix_Elementor_Analyzer {
                     ?? 'full';
 
                 $element['widgetType'] =
-                    'container-background';
+                    'Container Background';
             }
 
             /*
@@ -232,7 +395,7 @@ class VelociPix_Elementor_Analyzer {
                     ?? 'full';
 
                 $element['widgetType'] =
-                    'background-overlay';
+                    'Background Overlay';
             }
 
             $recommended_width =
@@ -536,18 +699,4 @@ class VelociPix_Elementor_Analyzer {
             'No optimization changes currently recommended.';
     }
 
-    // public function debug_test( $post_id ) {
-
-    //     $analyzer = new VelociPix_Elementor_Analyzer();
-
-    //     echo '<pre>';
-
-    //     print_r(
-    //         $analyzer->get_elementor_image_data(
-    //             $post_id
-    //         )
-    //     );
-
-    //     echo '</pre>';
-    // }
 }

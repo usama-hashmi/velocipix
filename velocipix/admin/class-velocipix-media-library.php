@@ -155,11 +155,23 @@ class VelociPix_Media_Library {
                 'velocipix_frontend_analysis'
             );
 
-        $frontend_data =
-            $frontend_analysis[
-                $attachment_id
-            ]
-            ?? null;
+        $frontend_matches = [];
+
+        if ( is_array( $frontend_analysis ) ) {
+
+            foreach ( $frontend_analysis as $key => $analysis ) {
+
+                $parts = explode( ':', $key );
+
+                if (
+                    count( $parts ) === 2
+                    && intval( $parts[1] ) === $attachment_id
+                ) {
+
+                    $frontend_matches[] = $analysis;
+                }
+            }
+        }
 
         echo '<div style="
             margin-top:8px;
@@ -167,7 +179,7 @@ class VelociPix_Media_Library {
 
         echo '<strong>Frontend:</strong> ';
 
-        if ( empty( $frontend_data ) ) {
+        if ( empty( $frontend_matches ) ) {
 
             echo '<span style="
                 color:#996800;
@@ -180,42 +192,64 @@ class VelociPix_Media_Library {
 
         else {
 
-            $ratio =
-                floatval(
-                    $frontend_data['ratio']
-                    ?? 1
+            $highest_severity = 'optimized';
+
+            foreach ( $frontend_matches as $analysis ) {
+
+                $ratio = floatval(
+                    $analysis['ratio'] ?? 1
                 );
 
-            if ( $ratio >= 4 ) {
+                if ( $ratio >= 4 ) {
 
-                echo '<span style="
-                    color:#d63638;
-                    font-weight:600;
-                ">
-                    Severe
-                </span>';
+                    $highest_severity = 'severe';
+                    break;
 
+                }
+
+                if (
+                    $ratio >= 1.5
+                    && $highest_severity !== 'severe'
+                ) {
+
+                    $highest_severity = 'moderate';
+                }
             }
 
-            elseif ( $ratio >= 1.5 ) {
+            switch ( $highest_severity ) {
 
-                echo '<span style="
-                    color:#dba617;
-                    font-weight:600;
-                ">
-                    Moderate
-                </span>';
+                case 'severe':
 
-            }
+                    echo '<span style="
+                        color:#d63638;
+                        font-weight:600;
+                    ">
+                        Severe
+                    </span>';
 
-            else {
+                    break;
 
-                echo '<span style="
-                    color:#256029;
-                    font-weight:600;
-                ">
-                    ✓ Optimized
-                </span>';
+                case 'moderate':
+
+                    echo '<span style="
+                        color:#dba617;
+                        font-weight:600;
+                    ">
+                        Moderate
+                    </span>';
+
+                    break;
+
+                default:
+
+                    echo '<span style="
+                        color:#256029;
+                        font-weight:600;
+                    ">
+                        ✓ Optimized
+                    </span>';
+
+                    break;
             }
         }
 
