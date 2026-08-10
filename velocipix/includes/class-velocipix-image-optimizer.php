@@ -81,7 +81,41 @@ class VelociPix_Image_Optimizer {
 		$baseurl = $upload_dir['baseurl'];
 		$basedir = $upload_dir['basedir'];
 
-		$file_path = str_replace( $baseurl, $basedir, $image_url );
+		$upload_baseurls = [ $baseurl ];
+
+		if ( 0 === strpos( $baseurl, 'http://' ) ) {
+
+			$upload_baseurls[] =
+				'https://' . substr( $baseurl, 7 );
+
+		} elseif ( 0 === strpos( $baseurl, 'https://' ) ) {
+
+			$upload_baseurls[] =
+				'http://' . substr( $baseurl, 8 );
+
+		}
+
+		$matched_baseurl = '';
+
+		foreach ( $upload_baseurls as $upload_baseurl ) {
+
+			if ( 0 === strpos( $image_url, $upload_baseurl ) ) {
+
+				$matched_baseurl = $upload_baseurl;
+				break;
+
+			}
+		}
+
+		if ( empty( $matched_baseurl ) ) {
+			return $image_url;
+		}
+
+		$file_path = str_replace(
+			$matched_baseurl,
+			$basedir,
+			$image_url
+		);
 
 		$avif_path = preg_replace(
 			'/\\.(jpg|jpeg|png)$/i',
@@ -542,10 +576,35 @@ class VelociPix_Image_Optimizer {
 		$upload_dir = wp_upload_dir();
 
 		$baseurl = $upload_dir['baseurl'];
-		$basedir = $upload_dir['basedir'];
+		$upload_baseurls = [ $baseurl ];
+
+		if ( 0 === strpos( $baseurl, 'http://' ) ) {
+
+			$upload_baseurls[] =
+				'https://' . substr( $baseurl, 7 );
+
+		} elseif ( 0 === strpos( $baseurl, 'https://' ) ) {
+
+			$upload_baseurls[] =
+				'http://' . substr( $baseurl, 8 );
+
+		}
+
+		$baseurl_patterns = [];
+
+		foreach ( $upload_baseurls as $upload_baseurl ) {
+
+			$baseurl_patterns[] = preg_quote(
+				$upload_baseurl,
+				'/'
+			);
+
+		}
 
 		preg_match_all(
-			'/' . preg_quote( $baseurl, '/' ) . '.*?\.(jpg|jpeg|png)/i',
+			'/(?:' .
+			implode( '|', $baseurl_patterns ) .
+			').*?\.(jpg|jpeg|png)/i',
 			$html,
 			$matches
 		);
@@ -555,8 +614,6 @@ class VelociPix_Image_Optimizer {
 		}
 
 		foreach ( $matches[0] as $image_url ) {
-
-			$file_path = str_replace( $baseurl, $basedir, $image_url );
 
 			$modern_url = $this->get_best_modern_image_url( $image_url );
 
