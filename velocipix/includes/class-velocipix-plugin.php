@@ -165,7 +165,8 @@ class VelociPix_Plugin {
 
                 'backgroundAttachments' => $background_attachments,
 
-                'debug' => ! empty(
+                'debug' => current_user_can( 'manage_options' )
+                && ! empty(
                     get_option(
                         'velocipix_settings'
                     )['enable_debug_mode']
@@ -176,18 +177,118 @@ class VelociPix_Plugin {
     }
 
     public function receive_frontend_analysis() {
-    
+
         check_ajax_referer(
             'velocipix_frontend_analysis',
             'nonce'
         );
 
+        $attachment_id = intval(
+            $_POST['attachment_id']
+            ?? 0
+        );
+
+        $image_url = esc_url_raw(
+            wp_unslash(
+                $_POST['image_url']
+                ?? ''
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve rendered background URLs
+        |--------------------------------------------------------------------------
+        |
+        | Theme-generated background images may not be present in Elementor's
+        | background attachment map. Resolve their rendered URL back to the
+        | WordPress attachment ID.
+        |
+        */
+
+        if (
+            ! $attachment_id &&
+            $image_url
+        ) {
+
+            $attachment_id =
+                attachment_url_to_postid(
+                    $image_url
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | AVIF/WebP fallback
+            |--------------------------------------------------------------------------
+            |
+            | VelociPix may already have replaced the original image URL with
+            | AVIF/WebP before the analyzer sees it. WordPress cannot resolve
+            | those generated URLs with attachment_url_to_postid(), so try the
+            | original JPG/JPEG/PNG equivalents.
+            |
+            */
+
+            if (
+                ! $attachment_id &&
+                preg_match(
+                    '/\.(avif|webp)$/i',
+                    $image_url
+                )
+            ) {
+
+                $original_base_url =
+                    preg_replace(
+                        '/\.(avif|webp)$/i',
+                        '',
+                        $image_url
+                    );
+
+                foreach (
+                    [
+                        '.jpg',
+                        '.jpeg',
+                        '.png',
+                    ] as $extension
+                ) {
+
+                    $candidate_url =
+                        $original_base_url .
+                        $extension;
+
+                    $attachment_id =
+                        attachment_url_to_postid(
+                            $candidate_url
+                        );
+
+                    if ( $attachment_id ) {
+                        break;
+                    }
+
+                }
+
+            }
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Do not store analysis without a valid attachment ID
+        |--------------------------------------------------------------------------
+        */
+
+        if ( ! $attachment_id ) {
+            wp_send_json_success(
+                [
+                    'message' =>
+                        'Frontend analysis skipped: attachment could not be resolved.',
+                ]
+            );
+        }
+
         $data = [
 
-            'attachment_id' => intval(
-                $_POST['attachment_id']
-                ?? 0
-            ),
+            'attachment_id' =>
+                $attachment_id,
 
             'post_id' => intval(
                 $_POST['post_id']

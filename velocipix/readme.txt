@@ -4,7 +4,7 @@ Tags: webp, avif, image optimization, elementor, core web vitals
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Optimize WordPress image delivery with WebP, AVIF, frontend rendering analysis, and Elementor image intelligence.
@@ -81,12 +81,13 @@ Includes:
 •	Frontend analysis visibility
 
 == Installation ==
-1.	Upload the plugin to the /wp-content/plugins/ directory or install through the WordPress Plugins screen.
-2.	Activate the plugin through the Plugins screen in WordPress.
-3.	Open VelociPix from the WordPress admin menu.
-4.	Configure WebP, AVIF, frontend delivery, and intelligence settings.
-5.	Run Bulk Optimization to optimize existing media.
-6.	Review Elementor Intelligence diagnostics and recommendations.
+
+1. Upload the plugin to the /wp-content/plugins/ directory or install through the WordPress Plugins screen.
+2. Activate the plugin through the Plugins screen in WordPress.
+3. Open VelociPix from the WordPress admin menu.
+4. Configure WebP, AVIF, frontend delivery, and intelligence settings.
+5. Run Bulk Optimization to optimize existing media.
+6. Review Elementor Intelligence diagnostics and recommendations.
 
 == Frequently Asked Questions ==
 
@@ -115,26 +116,35 @@ VelociPix automatically removes generated WebP and AVIF files associated with th
 Yes. The plugin includes bulk optimization support for existing media library images.
 
 == Screenshots ==
-1.	Elementor Intelligence dashboard showing oversized image detection and optimization insights.
-2.	Frontend rendering analysis showing rendered width, downloaded width, and overfetch ratios.
-3.	Media Library optimization visibility with WebP, AVIF, and optimization status indicators.
-4.	Bulk optimization workflow with progress tracking and completion status.
-5.	Settings dashboard with image optimization, frontend delivery, and intelligence controls.
+
+1. Elementor Intelligence dashboard showing oversized image detection and optimization insights.
+2. Frontend rendering analysis showing rendered width, downloaded width, and overfetch ratios.
+3. Media Library optimization visibility with WebP, AVIF, and optimization status indicators.
+4. Bulk optimization workflow with progress tracking and completion status.
+5. Settings dashboard with image optimization, frontend delivery, and intelligence controls.
 
 == Changelog ==
 
+= 1.1.1 =
+
+- Fixed default settings being enabled after the initial settings save.
+- Fixed WebP, AVIF, and frontend replacement settings to remain disabled by default.
+- Fixed Debug Mode settings behavior.
+- Removed temporary debugging output and logging.
+
 = 1.1.0 =
-* Added Frontend Analysis for Elementor images and backgrounds.
-* Added improved Elementor Intelligence reporting.
-* Added support for responsive background image analysis.
-* Improved frontend rendering detection.
-* Improved Media Library frontend status reporting.
-* Improved duplicate image handling across multiple pages.
-* Improved Full Size image display.
-* Improved Overfetch Ratio reporting.
-* Improved compatibility, stability, and overall reliability.
+
+- Added Frontend Analysis for Elementor images and backgrounds.
+- Added improved Elementor Intelligence reporting.
+- Added support for responsive background image analysis.
+- Improved frontend rendering detection.
+- Improved Media Library frontend status reporting.
+- Improved duplicate image handling across multiple pages.
+- Improved Full Size image display.
+- Improved Overfetch Ratio reporting.
+- Improved compatibility, stability, and overall reliability.
 
 == Upgrade Notice ==
 
-= 1.1.0 =
-Adds Frontend Analysis improvements, responsive background support, Media Library enhancements, and multiple stability improvements.
+= 1.1.1 =
+Includes fixes for default settings behavior, image format settings, frontend replacement settings, and Debug Mode behavior.

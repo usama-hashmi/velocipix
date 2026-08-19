@@ -148,11 +148,11 @@ class VelociPix_Admin {
 
         $settings = [
 
-            'enable_webp' => isset(
+            'enable_webp' => ! empty(
                 $input['enable_webp']
             ) ? 1 : 0,
 
-            'enable_avif' => isset(
+            'enable_avif' => ! empty(
                 $input['enable_avif']
             ) ? 1 : 0,
 
@@ -180,11 +180,11 @@ class VelociPix_Admin {
                 )
                 : 60,
 
-            'enable_frontend_replacement' => isset(
+            'enable_frontend_replacement' => ! empty(
                 $input['enable_frontend_replacement']
             ) ? 1 : 0,
 
-            'enable_debug_mode' => isset(
+            'enable_debug_mode' => ! empty(
                 $input['enable_debug_mode']
             )
                 ? 1
@@ -643,7 +643,7 @@ class VelociPix_Admin {
 
         <input
             type="checkbox"
-            value="0"
+            value="1"
             name="velocipix_settings[enable_debug_mode]"
             <?php checked(
                 1,

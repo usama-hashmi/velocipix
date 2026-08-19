@@ -120,22 +120,81 @@ window.addEventListener(
             );
 		});
 
-        document
-        .querySelectorAll('.elementor-element')
-        .forEach(function (element) {
+            document
+            .querySelectorAll('.elementor-element')
+            .forEach(function (element) {
 
-            const elementId =
-                element.dataset.id;
+                const elementId =
+                    element.dataset.id;
 
-            const attachmentId =
-                velocipixFrontend
-                    .backgroundAttachments[
-                        elementId
-                    ];
+                const mappedAttachmentId =
+                    velocipixFrontend
+                        .backgroundAttachments[
+                            elementId
+                        ] || 0;
 
-            if ( ! attachmentId ) {
-                return;
-            }
+                /*
+                |--------------------------------------------------------------------------
+                | Existing Elementor background handling
+                |--------------------------------------------------------------------------
+                */
+
+                if ( mappedAttachmentId ) {
+
+                    analyzeBackgroundElement(
+                        element,
+                        mappedAttachmentId
+                    );
+
+                    return;
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Rendered background fallback
+                |--------------------------------------------------------------------------
+                |
+                | Some themes create background-image elements directly in their
+                | rendered HTML instead of storing the image in Elementor's
+                | background_image settings.
+                |
+                | Example:
+                |
+                | <div class="img-bg"
+                |      style="background-image:url(...)">
+                |
+                | Search the Elementor element and its descendants so these
+                | rendered backgrounds can also be analyzed.
+                |
+                */
+
+                const backgroundElements = [
+                    element
+                ].concat(
+                    Array.from(
+                        element.querySelectorAll('*')
+                    )
+                );
+
+                backgroundElements.forEach(
+                    function ( backgroundElement ) {
+
+                        analyzeBackgroundElement(
+                            backgroundElement,
+                            0
+                        );
+
+                    }
+                );
+
+            });
+
+        function analyzeBackgroundElement(
+            element,
+            attachmentId
+        ) {
+
+            const backgroundImages = [];
 
             let style =
                 getComputedStyle(
@@ -145,25 +204,41 @@ window.addEventListener(
             let backgroundImage =
                 style.backgroundImage;
 
+            if (
+                backgroundImage &&
+                backgroundImage !== 'none'
+            ) {
+
+                backgroundImages.push(
+                    backgroundImage
+                );
+
+            }
+
             /*
             |--------------------------------------------------------------------------
             | Background Overlay (::before)
             |--------------------------------------------------------------------------
             */
 
+            style =
+                getComputedStyle(
+                    element,
+                    '::before'
+                );
+
+            backgroundImage =
+                style.backgroundImage;
+
             if (
-                ! backgroundImage ||
-                backgroundImage === 'none'
+                backgroundImage &&
+                backgroundImage !== 'none'
             ) {
 
-                style =
-                    getComputedStyle(
-                        element,
-                        '::before'
-                    );
+                backgroundImages.push(
+                    backgroundImage
+                );
 
-                backgroundImage =
-                    style.backgroundImage;
             }
 
             /*
@@ -172,139 +247,151 @@ window.addEventListener(
             |--------------------------------------------------------------------------
             */
 
+            style =
+                getComputedStyle(
+                    element,
+                    '::after'
+                );
+
+            backgroundImage =
+                style.backgroundImage;
+
             if (
-                ! backgroundImage ||
-                backgroundImage === 'none'
+                backgroundImage &&
+                backgroundImage !== 'none'
             ) {
 
-                style =
-                    getComputedStyle(
-                        element,
-                        '::after'
-                    );
+                backgroundImages.push(
+                    backgroundImage
+                );
 
-                backgroundImage =
-                    style.backgroundImage;
             }
 
-            if (
-                ! backgroundImage ||
-                backgroundImage === 'none'
-            ) {
+            if ( ! backgroundImages.length ) {
                 return;
             }
 
-            const url =
-                backgroundImage
-                    .replace(
-                        /^url\(["']?/,
-                        ''
-                    )
-                    .replace(
-                        /["']?\)$/,
-                        ''
-                    );
+            backgroundImages.forEach(
+                function ( backgroundImage ) {
 
-            const image =
-                new Image();
+                    const urlMatch =
+                        backgroundImage.match(
+                            /url\(["']?([^"')]+)["']?\)/
+                        );
 
-            const analyzeBackground =
-                function () {
-
-                    const renderedWidth =
-                        element.clientWidth;
-
-                    const naturalWidth =
-                        image.naturalWidth;
-
-                    if (
-                        ! renderedWidth ||
-                        ! naturalWidth
-                    ) {
+                    if ( ! urlMatch || ! urlMatch[1] ) {
                         return;
                     }
 
-                    const ratio = Number(
+                    const url =
+                        urlMatch[1];
 
-                        (
+                    const image =
+                        new Image();
 
-                            naturalWidth /
+                    const analyzeBackground =
+                        function () {
 
-                            renderedWidth
+                            const renderedWidth =
+                                element.clientWidth;
 
-                        ).toFixed( 2 )
+                            const naturalWidth =
+                                image.naturalWidth;
 
-                    );
+                            if (
+                                ! renderedWidth ||
+                                ! naturalWidth
+                            ) {
+                                return;
+                            }
 
-                    fetch(
+                            const ratio = Number(
 
-                        velocipixFrontend.ajaxUrl,
+                                (
 
-                        {
+                                    naturalWidth /
 
-                            method: 'POST',
+                                    renderedWidth
 
-                            headers: {
+                                ).toFixed( 2 )
 
-                                'Content-Type':
-                                    'application/x-www-form-urlencoded',
+                            );
 
-                            },
+                            fetch(
 
-                            body:
+                                velocipixFrontend.ajaxUrl,
 
-                                new URLSearchParams({
+                                {
 
-                                    action:
-                                        'velocipix_frontend_analysis',
+                                    method: 'POST',
 
-                                    nonce:
-                                        velocipixFrontend.nonce,
+                                    headers: {
 
-                                    attachment_id:
-                                        attachmentId,
+                                        'Content-Type':
+                                            'application/x-www-form-urlencoded',
 
-                                    post_id:
-                                        velocipixFrontend.post_id,
+                                    },
 
-                                    rendered_width:
-                                        renderedWidth,
+                                    body:
 
-                                    natural_width:
-                                        naturalWidth,
+                                        new URLSearchParams({
 
-                                    ratio:
-                                        ratio,
+                                            action:
+                                                'velocipix_frontend_analysis',
 
-                                    page_url:
-                                        window.location.href,
+                                            nonce:
+                                                velocipixFrontend.nonce,
 
-                                }),
+                                            attachment_id:
+                                                attachmentId,
 
-                        }
+                                            image_url:
+                                                url,
 
-                    );
+                                            post_id:
+                                                velocipixFrontend.post_id,
 
-                };
+                                            rendered_width:
+                                                renderedWidth,
 
-            image.onload =
-                analyzeBackground;
+                                            natural_width:
+                                                naturalWidth,
 
-            image.src =
-                url;
+                                            ratio:
+                                                ratio,
 
-            /*
-            |--------------------------------------------------------------------------
-            | Cached images
-            |--------------------------------------------------------------------------
-            */
+                                            page_url:
+                                                window.location.href,
 
-            if ( image.complete ) {
+                                        }),
 
-                analyzeBackground();
+                                }
 
-            }
+                            );
 
-        });
+                        };
+
+                    image.onload =
+                        analyzeBackground;
+
+                    image.src =
+                        url;
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Cached images
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ( image.complete ) {
+
+                        analyzeBackground();
+
+                    }
+
+                }
+            );
+
+        }
 	}
 );

@@ -65,12 +65,12 @@ class VelociPix_Image_Optimizer {
 			get_option( 'velocipix_settings', [] ),
 
 			[
-				'enable_webp'                => 1,
-				'enable_avif'                => 1,
-				'webp_quality'               => 80,
-				'avif_quality'               => 60,
-				'enable_frontend_replacement' => 1,
-			]
+                'enable_webp'                 => 0,
+                'enable_avif'                 => 0,
+                'webp_quality'                => 80,
+                'avif_quality'                => 60,
+                'enable_frontend_replacement' => 0,
+            ]
 		);
 	}
 

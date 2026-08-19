@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -68,7 +68,28 @@ class VelociPix_Elementor_Analyzer {
             $post_id
         );
 
-        return $images;
+        $unique_images = [];
+        $seen_images   = [];
+
+        foreach ( $images as $image ) {
+
+            $key =
+                ( $image['post_id'] ?? $post_id )
+                . ':'
+                . ( $image['attachment_id'] ?? 0 )
+                . ':'
+                . ( $image['image_size'] ?? 'full' );
+
+            if ( isset( $seen_images[ $key ] ) ) {
+                continue;
+            }
+
+            $seen_images[ $key ] = true;
+
+            $unique_images[] = $image;
+        }
+
+        return $unique_images;
     }
 
 	private function extract_image_ids(
@@ -87,7 +108,7 @@ class VelociPix_Elementor_Analyzer {
 
                 // Classic Elementor Image Widget
                 if ( 'image' === $element['widgetType'] ) {
-                    
+
                     $image_id =
                         $element['settings']['image']['id']
                         ?? 0;
@@ -308,13 +329,15 @@ class VelociPix_Elementor_Analyzer {
 
             $image_size = 'full';
 
+            $additional_image_ids = [];
+
             // Classic Elementor Image Widget
             if (
                 isset( $element['widgetType'] )
                 &&
                 'image' === $element['widgetType']
             ) {
-                
+
                 $image_id =
                     $element['settings']['image']['id']
                     ?? 0;
@@ -405,6 +428,127 @@ class VelociPix_Elementor_Analyzer {
 
             /*
             |--------------------------------------------------------------------------
+            | Theme Widget Nested Images
+            |--------------------------------------------------------------------------
+            |
+            | Some Elementor widgets supplied by themes store their images inside
+            | nested widget settings instead of Elementor's standard image fields.
+            |
+            */
+
+            if (
+                ! empty( $element['settings']['slides'] )
+                &&
+                is_array( $element['settings']['slides'] )
+            ) {
+
+                foreach (
+                    $element['settings']['slides'] as $slide
+                ) {
+
+                    if (
+                        ! empty(
+                            $slide['bg_image']['id']
+                        )
+                    ) {
+
+                        $additional_image_ids[] = [
+                            'id' =>
+                                (int) $slide['bg_image']['id'],
+
+                            'size' =>
+                                $slide['bg_image']['size']
+                                ?? 'full',
+
+                            'type' =>
+                                'Theme Widget Background',
+                        ];
+
+                    }
+
+                    if (
+                        ! empty(
+                            $slide['image']['id']
+                        )
+                    ) {
+
+                        $additional_image_ids[] = [
+                            'id' =>
+                                (int) $slide['image']['id'],
+
+                            'size' =>
+                                $slide['image']['size']
+                                ?? 'full',
+
+                            'type' =>
+                                'Theme Widget Image',
+                        ];
+
+                    }
+
+                }
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Theme Widget Top-Level Images
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                ! in_array(
+                    $element['widgetType'] ?? '',
+                    [
+                        'image',
+                        'e-image',
+                    ],
+                    true
+                )
+                &&
+                ! empty(
+                    $element['settings']['image']['id']
+                )
+            ) {
+
+                $additional_image_ids[] = [
+                    'id' =>
+                        (int)
+                        $element['settings']['image']['id'],
+
+                    'size' =>
+                        $element['settings']['image']['size']
+                        ?? 'full',
+
+                    'type' =>
+                        'Theme Widget Image',
+                ];
+
+            }
+
+            if (
+                ! empty(
+                    $element['settings']['image2']['id']
+                )
+            ) {
+
+                $additional_image_ids[] = [
+                    'id' =>
+                        (int)
+                        $element['settings']['image2']['id'],
+
+                    'size' =>
+                        $element['settings']['image2']['size']
+                        ?? 'full',
+
+                    'type' =>
+                        'Theme Widget Image',
+                ];
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
             | Elementor Custom Image Size
             |--------------------------------------------------------------------------
             */
@@ -419,7 +563,39 @@ class VelociPix_Elementor_Analyzer {
                 );
             }
 
+            $image_entries = [];
+
             if ( ! empty( $image_id ) ) {
+
+                $image_entries[] = [
+                    'id'   => (int) $image_id,
+                    'size' => $image_size,
+                    'type' => $element['widgetType'],
+                ];
+
+            }
+
+            $image_entries = array_merge(
+                $image_entries,
+                $additional_image_ids
+            );
+
+            foreach ( $image_entries as $image_entry ) {
+
+                $image_id =
+                    $image_entry['id'];
+
+                $image_size =
+                    $image_entry['size'];
+
+                if ( ! $image_id ) {
+                    continue;
+                }
+
+                $recommended_width =
+                    $this->get_image_size_width(
+                        $image_size
+                    );
 
                 $metadata = wp_get_attachment_metadata(
                     $image_id
@@ -493,14 +669,14 @@ class VelociPix_Elementor_Analyzer {
                     'attachment_id' => $image_id,
 
                     'widget_type' =>
-                        $element['widgetType'],
+                        $image_entry['type'],
 
                     'image_size' =>
                         $image_size,
 
                     'recommended_width' =>
                         $recommended_width,
-                    
+
                     'is_oversized' => $is_oversized,
 
                     'severity' => $severity,
@@ -562,6 +738,7 @@ class VelociPix_Elementor_Analyzer {
 
                         $frontend_data
                     );
+                }
             }
 
             if ( ! empty( $element['elements'] ) ) {
@@ -573,7 +750,6 @@ class VelociPix_Elementor_Analyzer {
                 );
             }
         }
-    }
 
     private function get_image_size_width( $image_size ) {
 
