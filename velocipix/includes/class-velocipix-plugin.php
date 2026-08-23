@@ -188,6 +188,15 @@ class VelociPix_Plugin {
             ?? 0
         );
 
+        if (
+            $attachment_id &&
+            'attachment' !== get_post_type(
+                $attachment_id
+            )
+        ) {
+            $attachment_id = 0;
+        }
+
         $image_url = esc_url_raw(
             wp_unslash(
                 $_POST['image_url']

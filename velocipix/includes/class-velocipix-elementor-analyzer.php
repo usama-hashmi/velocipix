@@ -549,6 +549,51 @@ class VelociPix_Elementor_Analyzer {
 
             /*
             |--------------------------------------------------------------------------
+            | Theme Widget Card Images
+            |--------------------------------------------------------------------------
+            |
+            | Some theme/custom widgets store multiple images inside a cards
+            | repeater instead of Elementor's standard image field.
+            |
+            */
+
+            if (
+                ! empty( $element['settings']['cards'] )
+                &&
+                is_array( $element['settings']['cards'] )
+            ) {
+
+                foreach (
+                    $element['settings']['cards'] as $card
+                ) {
+
+                    if (
+                        ! empty(
+                            $card['card_image']['id']
+                        )
+                    ) {
+
+                        $additional_image_ids[] = [
+                            'id' =>
+                                (int)
+                                $card['card_image']['id'],
+
+                            'size' =>
+                                $card['card_image']['size']
+                                ?? 'full',
+
+                            'type' =>
+                                'Theme Widget Card Image',
+                        ];
+
+                    }
+
+                }
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
             | Elementor Custom Image Size
             |--------------------------------------------------------------------------
             */
