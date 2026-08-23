@@ -3,7 +3,7 @@
  * Plugin Name: VelociPix
  * Plugin URI: https://velocipix.com
  * Description: Automatically optimize WordPress images with WebP & AVIF conversion, bulk optimization, smart image delivery, frontend image analysis, and Elementor Intelligence.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Usama Hashmi
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'VELOCIPIX_VERSION', '1.1.1' );
+define( 'VELOCIPIX_VERSION', '1.1.2' );
 define( 'VELOCIPIX_PLUGIN_FILE', __FILE__ );
 define( 'VELOCIPIX_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'VELOCIPIX_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
